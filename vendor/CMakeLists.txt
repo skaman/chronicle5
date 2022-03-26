@@ -1,0 +1,3 @@
+# Add SPDLOG
+set(SPDLOG_NO_EXCEPTIONS OFF CACHE BOOL "" FORCE)
+add_subdirectory(spdlog EXCLUDE_FROM_ALL)
