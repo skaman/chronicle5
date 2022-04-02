@@ -1,9 +1,11 @@
 #pragma once
 
+#include <iostream>
+
 #ifdef __cpp_lib_source_location
 #include <source_location>
 #else
-// in case of there's no support for source location,
+// In case of there's no support for source location,
 // for the moment just create a fake struct just to feed
 // the method. The log will not have any information about
 // the source location, but at least it will compile.
@@ -39,7 +41,8 @@ enum class level : int {
   off = 6
 };
 
-constexpr auto level_to_spdlog_(level lvl) -> spdlog::level::level_enum {
+constexpr auto level_to_spdlog_(level lvl) noexcept
+    -> spdlog::level::level_enum {
   switch (lvl) {
   case chr::log::level::trace:
     return spdlog::level::trace;
@@ -60,20 +63,20 @@ constexpr auto level_to_spdlog_(level lvl) -> spdlog::level::level_enum {
   }
 }
 
-template <level lvl, typename... Args>
+template <level lvl, typename... P>
 constexpr auto log_(const std::source_location &location,
-                    spdlog::format_string_t<Args...> fmt, Args &&...args)
+                    spdlog::format_string_t<P...> format, P &&...params)
     -> void {
   if constexpr (static_cast<int>(lvl) >= CHR_MINIMUM_LOG_LEVEL) {
     spdlog::default_logger_raw()->log(
         spdlog::source_loc{location.file_name(),
                            static_cast<int>(location.line()),
                            location.function_name()},
-        level_to_spdlog_(lvl), fmt, std::forward<Args>(args)...);
+        level_to_spdlog_(lvl), format, std::forward<P>(params)...);
   }
 }
 
-auto set_level(level lvl) -> void { spdlog::set_level(level_to_spdlog_(lvl)); }
+auto set_level(level lvl) -> void;
 
 template <typename... P> struct trace {
   constexpr trace(
