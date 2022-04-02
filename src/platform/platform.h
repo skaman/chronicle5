@@ -11,7 +11,8 @@ concept ConceptEvent = std::is_base_of<Event, T>::value;
 struct Platform {
   template <ConceptEvent TEvent, auto Candidate, typename Type>
   auto connect(Type &&value_or_instance) -> entt::connection {
-    return app_dispatcher_.sink<TEvent>().connect<Candidate>(value_or_instance);
+    return app_dispatcher_.sink<TEvent>().template connect<Candidate>(
+        value_or_instance);
   }
 
   template <ConceptEvent TEvent, typename Type>

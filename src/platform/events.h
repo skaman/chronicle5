@@ -173,7 +173,7 @@ struct MouseMoveEvent : Event {
   float y;
 };
 
-    struct MouseButtonEvent : Event {
+struct MouseButtonEvent : Event {
   MouseButton button;
   Modifier modifiers;
   bool pressed;
