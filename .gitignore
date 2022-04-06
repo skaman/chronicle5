@@ -2,4 +2,5 @@ build/
 out/
 .vs/
 .vscode/
+.sonarlint/
 CMakeSettings.json
