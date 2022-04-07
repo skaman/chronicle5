@@ -65,7 +65,10 @@ auto GlfwPlatform::run() -> int {
     return EXIT_FAILURE;
   }
 
-  int width, height, rectWidth, rectHeight;
+  int width;
+  int height;
+  int rectWidth;
+  int rectHeight;
   glfwGetWindowSize(window_, &width, &height);
   glfwGetFramebufferSize(window_, &rectWidth, &rectHeight);
 
@@ -116,8 +119,9 @@ auto GlfwPlatform::on_window_close(GLFWwindow *window) -> void {
   app->platform_.app_dispatcher_.enqueue<WindowCloseEvent>({});
 }
 
-auto GlfwPlatform::on_key(GLFWwindow *window, int key, int scancode, int action,
-                          int mods) -> void {
+auto GlfwPlatform::on_key(GLFWwindow *window, int key,
+                          [[maybe_unused]] int scancode, int action, int mods)
+    -> void {
   auto app = static_cast<App *>(glfwGetWindowUserPointer(window));
   app->platform_.app_dispatcher_.enqueue<KeyEvent>(
       {.key = key_from_glfw(key),
