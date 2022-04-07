@@ -23,7 +23,6 @@ private:
   static auto on_scroll(GLFWwindow *window, double x_offset, double y_offset)
       -> void;
 
-private:
   GLFWwindow *window_{nullptr};
 };
 

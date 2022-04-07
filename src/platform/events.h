@@ -136,19 +136,19 @@ enum class Modifier {
   caps_lock = 16,
   num_lock = 32,
 
-  _entt_enum_as_bitmask
+  _entt_enum_as_bitmask = 128
 };
 
 enum class MouseButton {
-  unknown,
-  button_1,
-  button_2,
-  button_3,
-  button_4,
-  button_5,
-  button_6,
-  button_7,
-  button_8,
+  unknown = 0,
+  button_1 = 1,
+  button_2 = 2,
+  button_3 = 3,
+  button_4 = 4,
+  button_5 = 5,
+  button_6 = 6,
+  button_7 = 7,
+  button_8 = 8,
 
   buttonLeft = button_1,
   buttonRight = button_2,

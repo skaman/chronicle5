@@ -58,7 +58,7 @@ auto GlfwPlatform::run() -> int {
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-  window_ = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+  window_ = glfwCreateWindow(640, 480, "Simple example", nullptr, nullptr);
   if (!window_) {
     chr::log::critical("Cannot create GLFW main window");
     glfwTerminate();
@@ -99,7 +99,8 @@ auto GlfwPlatform::run() -> int {
 
 auto GlfwPlatform::on_window_size(GLFWwindow *window, int width, int height)
     -> void {
-  int rect_width, rect_height;
+  int rect_width;
+  int rect_height;
   glfwGetFramebufferSize(window, &rect_width, &rect_height);
 
   auto app = static_cast<App *>(glfwGetWindowUserPointer(window));

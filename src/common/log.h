@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 #ifdef __cpp_lib_source_location
 #include <source_location>
@@ -22,8 +23,6 @@ struct source_location {
 };
 } // namespace std
 #endif
-
-#include <spdlog/spdlog.h>
 
 #ifndef CHR_MINIMUM_LOG_LEVEL
 #define CHR_MINIMUM_LOG_LEVEL 0
@@ -56,92 +55,91 @@ constexpr auto level_to_spdlog_(level lvl) noexcept
     return spdlog::level::err;
   case chr::log::level::critical:
     return spdlog::level::critical;
-  case chr::log::level::off:
   default:
     return spdlog::level::off;
     break;
   }
 }
 
-template <level lvl, typename... P>
+template <level lvl, typename... Args>
 constexpr auto log_(const std::source_location &location,
-                    spdlog::format_string_t<P...> format, P &&...params)
+                    spdlog::format_string_t<Args...> format, Args &&...args)
     -> void {
   if constexpr (static_cast<int>(lvl) >= CHR_MINIMUM_LOG_LEVEL) {
     spdlog::default_logger_raw()->log(
         spdlog::source_loc{location.file_name(),
                            static_cast<int>(location.line()),
                            location.function_name()},
-        level_to_spdlog_(lvl), format, std::forward<P>(params)...);
+        level_to_spdlog_(lvl), format, std::forward<Args>(args)...);
   }
 }
 
 auto set_level(level lvl) -> void;
 
-template <typename... P> struct trace {
+template <typename... Args> struct trace {
   constexpr trace(
-      spdlog::format_string_t<P...> &&format, P &&...params,
+      spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::trace>(loc, format, std::forward<P>(params)...);
+    log_<level::trace>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
-template <typename... P> struct debug {
+template <typename... Args> struct debug {
   constexpr debug(
-      spdlog::format_string_t<P...> &&format, P &&...params,
+      spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::debug>(loc, format, std::forward<P>(params)...);
+    log_<level::debug>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
-template <typename... P> struct info {
+template <typename... Args> struct info {
   constexpr info(
-      spdlog::format_string_t<P...> &&format, P &&...params,
+      spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::info>(loc, format, std::forward<P>(params)...);
+    log_<level::info>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
-template <typename... P> struct warn {
+template <typename... Args> struct warn {
   constexpr warn(
-      spdlog::format_string_t<P...> &&format, P &&...params,
+      spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::warn>(loc, format, std::forward<P>(params)...);
+    log_<level::warn>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
-template <typename... P> struct err {
+template <typename... Args> struct err {
   constexpr err(
-      spdlog::format_string_t<P...> &&format, P &&...params,
+      spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::err>(loc, format, std::forward<P>(params)...);
+    log_<level::err>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
-template <typename... P> struct critical {
+template <typename... Args> struct critical {
   constexpr critical(
-      spdlog::format_string_t<P...> &&format, P &&...params,
+      spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::critical>(loc, format, std::forward<P>(params)...);
+    log_<level::critical>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
-template <typename... P>
-trace(spdlog::format_string_t<P...> &&, P &&...) -> trace<P...>;
+template <typename... Args>
+trace(spdlog::format_string_t<Args...> &&, Args &&...) -> trace<Args...>;
 
-template <typename... P>
-debug(spdlog::format_string_t<P...> &&, P &&...) -> debug<P...>;
+template <typename... Args>
+debug(spdlog::format_string_t<Args...> &&, Args &&...) -> debug<Args...>;
 
-template <typename... P>
-info(spdlog::format_string_t<P...> &&, P &&...) -> info<P...>;
+template <typename... Args>
+info(spdlog::format_string_t<Args...> &&, Args &&...) -> info<Args...>;
 
-template <typename... P>
-warn(spdlog::format_string_t<P...> &&, P &&...) -> warn<P...>;
+template <typename... Args>
+warn(spdlog::format_string_t<Args...> &&, Args &&...) -> warn<Args...>;
 
-template <typename... P>
-err(spdlog::format_string_t<P...> &&, P &&...) -> err<P...>;
+template <typename... Args>
+err(spdlog::format_string_t<Args...> &&, Args &&...) -> err<Args...>;
 
-template <typename... P>
-critical(spdlog::format_string_t<P...> &&, P &&...) -> critical<P...>;
+template <typename... Args>
+critical(spdlog::format_string_t<Args...> &&, Args &&...) -> critical<Args...>;
 
 } // namespace chr::log
