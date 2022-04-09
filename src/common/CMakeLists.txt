@@ -2,7 +2,7 @@ add_library(chronicle-common
     "log.cpp"
     "log.h"
     "platform_detect.h"
-)
+ "debug.h")
 
 add_library(chronicle::common ALIAS chronicle-common)
 
@@ -18,13 +18,17 @@ target_link_libraries(chronicle-common
         spdlog
 )
 
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-    target_compile_definitions(chronicle-common PUBLIC CHR_MINIMUM_LOG_LEVEL=0)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    target_compile_definitions(chronicle-common
+        PUBLIC
+            CHR_MINIMUM_LOG_LEVEL=0
+            CHR_ENABLE_ASSERTS=1
+    )
 else()
     target_compile_definitions(chronicle-common
         PUBLIC
             CHR_MINIMUM_LOG_LEVEL=2
-            NDEBUG
+            CHR_ENABLE_ASSERTS=0
     )
 endif()
 

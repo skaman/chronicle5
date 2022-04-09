@@ -29,9 +29,21 @@ using entt::literals::operator""_hs;
 template <typename T>
 concept ConceptApp = std::is_base_of_v<App, T>;
 
-template <ConceptApp T> void *register_app() {
+template <ConceptApp T> void register_app() {
   entt::meta<T>().type("app"_hs).template base<App>();
-  return nullptr;
 }
+
+#define CHR_CAT_IMPL(a, b) a##b
+#define CHR_CAT(a, b) CHR_CAT_IMPL(a, b)
+
+#define CHR_INIT                                                               \
+  static void chr_auto_init_function_();                                       \
+  namespace {                                                                  \
+  struct chr__auto__init__ {                                                   \
+    chr__auto__init__() { chr_auto_init_function_(); }                         \
+  };                                                                           \
+  }                                                                            \
+  static const chr__auto__init__ CHR_CAT(auto_init__, __LINE__);               \
+  static void chr_auto_init_function_()
 
 } // namespace chr

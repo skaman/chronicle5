@@ -4,13 +4,11 @@
 #include <chronicle/platform.h>
 
 struct ExampleApp : chr::App {
-  ExampleApp() {}
+  ExampleApp() = default;
 
-  virtual auto init() -> void override;
-  virtual auto destroy() -> void override;
-  virtual auto update() -> void override;
+  auto init() -> void override;
+  auto destroy() -> void override;
+  auto update() -> void override;
 
-  auto onKeyEvent(const chr::KeyEvent &keyEvent) -> void;
+  auto onKeyEvent(const chr::KeyEvent &keyEvent) const -> void;
 };
-
-const auto app = chr::register_app<ExampleApp>();

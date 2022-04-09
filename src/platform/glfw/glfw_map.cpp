@@ -3,7 +3,7 @@
 #include "glfw_platform.h"
 
 namespace chr {
-auto glfw_key_map() -> std::map<const int, const Key> {
+auto glfw_key_map() -> std::unordered_map<int, Key> {
   return {
       {GLFW_KEY_SPACE, Key::space},
       {GLFW_KEY_APOSTROPHE, Key::apostrophe},
@@ -128,7 +128,7 @@ auto glfw_key_map() -> std::map<const int, const Key> {
   };
 }
 
-auto glfw_mouse_button_map() -> std::map<const int, const MouseButton> {
+auto glfw_mouse_button_map() -> std::unordered_map<int, MouseButton> {
   return {
       {GLFW_MOUSE_BUTTON_1, MouseButton::button_1},
       {GLFW_MOUSE_BUTTON_2, MouseButton::button_2},

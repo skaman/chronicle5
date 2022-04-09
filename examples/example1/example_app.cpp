@@ -1,5 +1,7 @@
 #include "example_app.h"
 
+CHR_INIT { chr::register_app<ExampleApp>(); }
+
 auto ExampleApp::init() -> void {
   chr::log::info("init");
   platform().template connect<chr::KeyEvent, &ExampleApp::onKeyEvent>(this);
@@ -12,6 +14,6 @@ auto ExampleApp::destroy() -> void {
 
 auto ExampleApp::update() -> void { platform().update(); }
 
-auto ExampleApp::onKeyEvent(const chr::KeyEvent &keyEvent) -> void {
+auto ExampleApp::onKeyEvent(const chr::KeyEvent &keyEvent) const -> void {
   chr::log::info("key: {}", (int)keyEvent.key);
 }
