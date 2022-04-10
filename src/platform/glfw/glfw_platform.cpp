@@ -1,6 +1,7 @@
 #include "glfw_platform.h"
 
 #include <chronicle/common.h>
+#include <chronicle/renderer.h>
 
 #include "app.h"
 #include "events.h"
@@ -84,6 +85,25 @@ auto GlfwPlatform::run() -> int {
   glfwSetMouseButtonCallback(window_, &on_mouse_button);
   glfwSetScrollCallback(window_, &on_scroll);
 
+  renderer::Platform::set_type(renderer::PlatformType::vulkan);
+
+  renderer::InstanceInfo instanceInfo{
+      .debug_level{renderer::DebugLevel::warning},
+      .application_name{"Test application"},
+      .engine_name{"Chronicle"}};
+  renderer::Instance instance{instanceInfo};
+  instance.test();
+
+  auto &window = window_;
+  renderer::SurfaceInfo surfaceInfo{.init_callback = [window](void *opaque) {
+    VkSurfaceKHR vulkan_surface{VK_NULL_HANDLE};
+    glfwCreateWindowSurface(static_cast<VkInstance>(opaque), window, nullptr,
+                            &vulkan_surface);
+    return vulkan_surface;
+  }};
+
+  renderer::Surface surface{instance, surfaceInfo};
+
   app.init();
 
   while (!glfwWindowShouldClose(window_)) {
@@ -102,14 +122,14 @@ auto GlfwPlatform::run() -> int {
 
 auto GlfwPlatform::on_window_size(GLFWwindow *window, int width, int height)
     -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   int rect_width;
   int rect_height;
   glfwGetFramebufferSize(window, &rect_width, &rect_height);
 
   auto *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  assert_if_not(app != nullptr, "app can't ben null");
+  debug::assert_true(app != nullptr, "app can't ben null");
 
   app->platform_.app_dispatcher_.enqueue<WindowSizeEvent>(
       {.width = static_cast<uint32_t>(width),
@@ -119,10 +139,10 @@ auto GlfwPlatform::on_window_size(GLFWwindow *window, int width, int height)
 }
 
 auto GlfwPlatform::on_window_close(GLFWwindow *window) -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   auto *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  assert_if_not(app != nullptr, "app can't ben null");
+  debug::assert_true(app != nullptr, "app can't ben null");
 
   app->platform_.app_dispatcher_.enqueue<WindowCloseEvent>({});
 }
@@ -130,7 +150,7 @@ auto GlfwPlatform::on_window_close(GLFWwindow *window) -> void {
 auto GlfwPlatform::on_key(GLFWwindow *window, int key,
                           [[maybe_unused]] int scancode, int action, int mods)
     -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   auto app = static_cast<App *>(glfwGetWindowUserPointer(window));
   app->platform_.app_dispatcher_.enqueue<KeyEvent>(
@@ -142,30 +162,30 @@ auto GlfwPlatform::on_key(GLFWwindow *window, int key,
 
 auto GlfwPlatform::on_cursor_pos(GLFWwindow *window, double x, double y)
     -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   auto *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  assert_if_not(app != nullptr, "app can't ben null");
+  debug::assert_true(app != nullptr, "app can't ben null");
 
   app->platform_.app_dispatcher_.enqueue<MouseMoveEvent>(
       {.x = static_cast<float>(x), .y = static_cast<float>(y)});
 }
 
 auto GlfwPlatform::on_char(GLFWwindow *window, unsigned int keycode) -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   auto *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  assert_if_not(app != nullptr, "app can't ben null");
+  debug::assert_true(app != nullptr, "app can't ben null");
 
   app->platform_.app_dispatcher_.enqueue<CharEvent>({.keycode = keycode});
 }
 
 auto GlfwPlatform::on_mouse_button(GLFWwindow *window, int button, int action,
                                    int mods) -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   auto *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  assert_if_not(app != nullptr, "app can't ben null");
+  debug::assert_true(app != nullptr, "app can't ben null");
 
   app->platform_.app_dispatcher_.enqueue<MouseButtonEvent>(
       {.button = mouse_button_from_glfw(button),
@@ -175,10 +195,10 @@ auto GlfwPlatform::on_mouse_button(GLFWwindow *window, int button, int action,
 
 auto GlfwPlatform::on_scroll(GLFWwindow *window, double x_offset,
                              double y_offset) -> void {
-  assert_if_not(window != nullptr, "window can't ben null");
+  debug::assert_true(window != nullptr, "window can't ben null");
 
   auto *app = static_cast<App *>(glfwGetWindowUserPointer(window));
-  assert_if_not(app != nullptr, "app can't ben null");
+  debug::assert_true(app != nullptr, "app can't ben null");
 
   app->platform_.app_dispatcher_.enqueue<MouseScrollEvent>(
       {.x_offset = static_cast<float>(x_offset),

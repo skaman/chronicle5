@@ -4,7 +4,7 @@
 
 #include "log.h"
 
-namespace chr {
+namespace chr::debug {
 
 struct assert_failure {
   template <typename Fun> explicit assert_failure(Fun fun) {
@@ -13,7 +13,8 @@ struct assert_failure {
   }
 };
 
-constexpr void assert_if_not(bool condition, const std::string &message) {
+constexpr auto assert_true(bool condition, const std::string &message)
+    -> void {
   if constexpr (CHR_ENABLE_ASSERTS) {
     if (!condition) {
       log::critical("{}", message);

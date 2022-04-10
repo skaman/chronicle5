@@ -29,4 +29,5 @@ target_link_libraries(chronicle-platform
         Vulkan::Headers
         Vulkan::Vulkan
         chronicle::common
+        chronicle::renderer
 )

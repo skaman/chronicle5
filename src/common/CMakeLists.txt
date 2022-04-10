@@ -2,7 +2,9 @@ add_library(chronicle-common
     "log.cpp"
     "log.h"
     "platform_detect.h"
- "debug.h")
+    "debug.h"
+    "copyable.h"
+)
 
 add_library(chronicle::common ALIAS chronicle-common)
 
