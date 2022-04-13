@@ -11,7 +11,7 @@
 #include "events.h"
 #include "platform.h"
 
-namespace chr::internal {
+namespace chr::platform::internal {
 
 struct GlfwPlatform {
   auto Run() -> int;

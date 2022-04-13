@@ -11,7 +11,7 @@
 #include "events.h"
 #include "glfw_map.h"
 
-namespace chr::internal {
+namespace chr::platform::internal {
 
 static const std::unordered_map<int, Key> kKeyMap = GetGlfwKeyMap();
 static const std::unordered_map<int, MouseButton> kMouseButtonMap =

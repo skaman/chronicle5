@@ -9,6 +9,6 @@
 auto main() -> int {
   chr::log::SetLevel(chr::log::Level::kTrace);
 
-  chr::internal::GlfwPlatform platform;
+  chr::platform::internal::GlfwPlatform platform;
   return platform.Run();
 }

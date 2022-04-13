@@ -9,7 +9,7 @@
 
 #include "events.h"
 
-namespace chr::internal {
+namespace chr::platform::internal {
 
 auto GetGlfwKeyMap() -> std::unordered_map<int, Key>;
 auto GetGlfwMouseButtonMap() -> std::unordered_map<int, MouseButton>;

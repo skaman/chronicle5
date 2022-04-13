@@ -9,7 +9,7 @@
 
 #include "events.h"
 
-namespace chr {
+namespace chr::platform {
 
 namespace internal {
 struct GlfwPlatform;
@@ -36,7 +36,7 @@ struct Platform {
   entt::dispatcher app_dispatcher_{};
   entt::dispatcher platform_dispatcher_{};
 
-  friend struct chr::internal::GlfwPlatform;
+  friend struct chr::platform::internal::GlfwPlatform;
 };
 
 }  // namespace chr

@@ -6,7 +6,7 @@
 
 #include "glfw_platform.h"
 
-namespace chr::internal {
+namespace chr::platform::internal {
 
 auto GetGlfwKeyMap() -> std::unordered_map<int, Key> {
   return {

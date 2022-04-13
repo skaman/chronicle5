@@ -7,7 +7,7 @@
 
 #include <entt/entt.hpp>
 
-namespace chr {
+namespace chr::platform {
 
 enum class Key {
   kUnknown,
