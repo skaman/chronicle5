@@ -6,9 +6,9 @@
 struct ExampleApp : chr::App {
   ExampleApp() = default;
 
-  auto init() -> void override;
-  auto destroy() -> void override;
-  auto update() -> void override;
+  auto Init() -> void override;
+  auto Destroy() -> void override;
+  auto Update() -> void override;
 
-  auto onKeyEvent(const chr::KeyEvent &keyEvent) const -> void;
+  auto OnKeyEvent(const chr::KeyEvent &key_event) const -> void;
 };

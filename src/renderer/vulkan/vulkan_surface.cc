@@ -1,7 +1,10 @@
-#include "pch.h"
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
 
 #include "vulkan_surface.h"
 
+#include "common.h"
 #include "vulkan_instance.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
@@ -11,28 +14,28 @@
 #include <vulkan/vulkan_macos.h>
 #endif
 
-namespace chr::renderer {
+namespace chr::renderer::internal {
 
 VulkanSurface::VulkanSurface(const VulkanInstance &instance,
                              const SurfaceInfo &info)
     : instance_(instance) {
-  if (info.init_callback) {
+  if (info.custom_init) {
     surface_ = static_cast<VkSurfaceKHR>(
-        info.init_callback(instance_.native_instance()));
+        info.custom_init(instance_.GetNativeInstance()));
     if (surface_ == VK_NULL_HANDLE) {
-      throw VulkanException("Failed to create window surface");
+      throw RendererException("Failed to create window surface");
     }
     return;
   }
 
-  #if defined(CHR_PLATFORM_WINDOWS)
+#if defined(CHR_PLATFORM_WINDOWS)
   VkWin32SurfaceCreateInfoKHR createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   createInfo.hwnd = static_cast<HWND>(info.hwnd);
   createInfo.hinstance = GetModuleHandle(nullptr);
-  if (vkCreateWin32SurfaceKHR(instance_.native_instance(), &createInfo, nullptr,
-                              &surface_) != VK_SUCCESS) {
-    throw VulkanException("Failed to create window surface");
+  if (vkCreateWin32SurfaceKHR(instance_.GetNativeInstance(), &createInfo,
+                              nullptr, &surface_) != VK_SUCCESS) {
+    throw RendererException("Failed to create window surface");
   }
 #elif defined(CHR_PLATFORM_MACOS)
   VkMacOSSurfaceCreateInfoMVK createInfo{};
@@ -40,7 +43,7 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
   createInfo.pView = surfaceInfo.hwnd;
   if (vkCreateMacOSSurfaceMVK(instance_.native_instance(), &createInfo, nullptr,
                               &surface_) != VK_SUCCESS) {
-    throw VulkanException("Failed to create window surface");
+    throw RendererException("Failed to create window surface");
   }
 #else
 #error "Unsupported platform"
@@ -48,7 +51,7 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
 }
 
 VulkanSurface::~VulkanSurface() {
-  vkDestroySurfaceKHR(instance_.native_instance(), surface_, nullptr);
+  vkDestroySurfaceKHR(instance_.GetNativeInstance(), surface_, nullptr);
 }
 
-} // namespace chr::renderer
+}  // namespace chr::renderer::internal

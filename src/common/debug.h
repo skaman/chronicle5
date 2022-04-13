@@ -1,4 +1,9 @@
-#pragma once
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+
+#ifndef CHR_COMMON_DEBUG_H_
+#define CHR_COMMON_DEBUG_H_
 
 #include <iostream>
 
@@ -6,21 +11,23 @@
 
 namespace chr::debug {
 
-struct assert_failure {
-  template <typename Fun> explicit assert_failure(Fun fun) {
+struct AssertFailure {
+  template <typename Fun>
+  explicit AssertFailure(Fun fun) {
     fun();
     std::quick_exit(EXIT_FAILURE);
   }
 };
 
-constexpr auto assert_true(bool condition, const std::string &message)
-    -> void {
+constexpr auto Assert(bool condition, const std::string &message) -> void {
   if constexpr (CHR_ENABLE_ASSERTS) {
     if (!condition) {
-      log::critical("{}", message);
-      throw assert_failure([] { assert(false); });
+      log::Critical("{}", message);
+      throw AssertFailure([] { assert(false); });
     }
   }
 }
 
-} // namespace chr
+}  // namespace chr::debug
+
+#endif  // CHR_COMMON_DEBUG_H_

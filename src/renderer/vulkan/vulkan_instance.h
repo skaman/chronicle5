@@ -1,10 +1,15 @@
-#pragma once
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
 
-#include "vulkan_pch.h"
+#ifndef CHR_RENDERER_VULKAN_VULKAN_INSTANCE_H_
+#define CHR_RENDERER_VULKAN_VULKAN_INSTANCE_H_
 
 #include "instance.h"
+#include "pch.h"
+#include "vulkan_pch.h"
 
-namespace chr::renderer {
+namespace chr::renderer::internal {
 
 struct VulkanInstance : InstanceI {
   explicit VulkanInstance(const InstanceInfo &info);
@@ -15,16 +20,16 @@ struct VulkanInstance : InstanceI {
 
   auto test() -> void;
 
-  auto layers() const -> std::vector<VkLayerProperties>;
-  auto extensions() const -> std::vector<VkExtensionProperties>;
+  auto GetLayers() const -> std::vector<VkLayerProperties>;
+  auto GetExtensions() const -> std::vector<VkExtensionProperties>;
 
-  auto native_instance() const -> VkInstance { return instance_; }
+  auto GetNativeInstance() const -> VkInstance { return instance_; }
 
-private:
-  auto setup_debug_messenger(DebugLevel level) -> void;
+ private:
+  auto SetupDebugMessenger(DebugLevel level) -> void;
 
-  auto validate_layers() const -> void;
-  auto validate_extensions() const -> void;
+  auto ValidateLayers() const -> void;
+  auto ValidateExtensions() const -> void;
 
   VkInstance instance_{VK_NULL_HANDLE};
   VkDebugUtilsMessengerEXT debug_messenger_{VK_NULL_HANDLE};
@@ -33,4 +38,6 @@ private:
   std::vector<const char *> required_layers_{};
 };
 
-} // namespace chr::renderer
+}  // namespace chr::renderer::internal
+
+#endif  // CHR_RENDERER_VULKAN_VULKAN_INSTANCE_H_

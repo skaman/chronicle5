@@ -1,8 +1,17 @@
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+
 #pragma once
+
+#ifndef CHR_RENDERER_INSTANCE_H_
+#define CHR_RENDERER_INSTANCE_H_
+
+#include "pch.h"
 
 namespace chr::renderer {
 
-enum class DebugLevel { none, verbose, warning, error };
+enum class DebugLevel { kNone, kVerbose, kWarning, kError };
 
 struct Version {
   uint16_t major;
@@ -14,7 +23,7 @@ struct Version {
 };
 
 struct InstanceInfo {
-  DebugLevel debug_level = DebugLevel::none;
+  DebugLevel debug_level = DebugLevel::kNone;
   std::vector<std::string> required_extensions{};
   std::string application_name{};
   Version application_version{0, 0, 0};
@@ -23,11 +32,13 @@ struct InstanceInfo {
 };
 
 struct InstanceI : entt::type_list<> {
-  template <typename Base> struct type : Base {
+  template <typename Base>
+  struct type : Base {
     auto test() -> void { this->template invoke<0>(*this); }
   };
 
-  template <typename Type> using impl = entt::value_list<&Type::test>;
+  template <typename Type>
+  using impl = entt::value_list<&Type::test>;
 };
 
 struct Instance : NonCopyable {
@@ -35,14 +46,18 @@ struct Instance : NonCopyable {
 
   auto test() -> void { instance_->test(); }
 
-private:
-  template <typename Type> auto native_type() const -> const Type & {
+ private:
+  template <typename Type>
+  auto GetNativeType() const -> const Type & {
     return *static_cast<const Type *>(instance_.data());
   }
 
   entt::basic_poly<InstanceI, 32> instance_{};
 
   friend struct Surface;
+  friend struct Device;
 };
 
-} // namespace chr::renderer
+}  // namespace chr::renderer
+
+#endif  // CHR_RENDERER_INSTANCE_H_

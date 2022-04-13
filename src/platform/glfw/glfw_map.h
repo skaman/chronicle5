@@ -1,12 +1,19 @@
-#pragma once
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
 
-#include "events.h"
+#ifndef CHR_PLATFORM_GLFW_MAP_H_
+#define CHR_PLATFORM_GLFW_MAP_H_
 
 #include <map>
 
-namespace chr {
+#include "events.h"
 
-auto glfw_key_map() -> std::unordered_map<int, Key>;
-auto glfw_mouse_button_map() -> std::unordered_map<int, MouseButton>;
+namespace chr::internal {
 
-} // namespace chr
+auto GetGlfwKeyMap() -> std::unordered_map<int, Key>;
+auto GetGlfwMouseButtonMap() -> std::unordered_map<int, MouseButton>;
+
+}  // namespace chr
+
+#endif  // CHR_PLATFORM_GLFW_MAP_H_

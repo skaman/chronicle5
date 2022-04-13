@@ -1,6 +1,12 @@
-#pragma once
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
 
-#include "../../src/common/log.h"
-#include "../../src/common/debug.h"
-#include "../../src/common/platform_detect.h"
+#ifndef CHR_COMMON_H_
+#define CHR_COMMON_H_
+
 #include "../../src/common/copyable.h"
+#include "../../src/common/debug.h"
+#include "../../src/common/log.h"
+
+#endif  // CHR_COMMON_H_

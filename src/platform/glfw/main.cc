@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#ifndef CHR_RENDERER_PCH_H_
-#define CHR_RENDERER_PCH_H_
-
 #include <chronicle/common.h>
 
-#include <entt/entt.hpp>
+#include "glfw_platform.h"
 
-#endif  // CHR_RENDERER_PCH_H_
+auto main() -> int {
+  chr::log::SetLevel(chr::log::Level::kTrace);
+
+  chr::internal::GlfwPlatform platform;
+  return platform.Run();
+}

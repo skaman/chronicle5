@@ -1,22 +1,23 @@
 find_package(Vulkan REQUIRED)
 
 add_library(chronicle-renderer
-    "vulkan/vulkan_device.cpp"
-    "vulkan/vulkan_device.h"
-    "vulkan/vulkan_instance.cpp"
-    "vulkan/vulkan_instance.h"
-    "vulkan/vulkan_pch.h"
-    "vulkan/vulkan_surface.cpp"
-    "vulkan/vulkan_surface.h"
+    "common.h"
     "device.h"
-    "device.cpp"
-    "instance.cpp"
+    "device.cc"
+    "instance.cc"
     "instance.h"
     "pch.h"
     "platform.h"
-    "platform.cpp"
-    "surface.cpp"
+    "platform.cc"
+    "surface.cc"
     "surface.h"
+    "vulkan/vulkan_device.cc"
+    "vulkan/vulkan_device.h"
+    "vulkan/vulkan_instance.cc"
+    "vulkan/vulkan_instance.h"
+    "vulkan/vulkan_pch.h"
+    "vulkan/vulkan_surface.cc"
+    "vulkan/vulkan_surface.h"
 )
 
 add_library(chronicle::renderer ALIAS chronicle-renderer)

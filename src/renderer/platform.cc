@@ -2,11 +2,10 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#ifndef CHR_RENDERER_PCH_H_
-#define CHR_RENDERER_PCH_H_
+#include "platform.h"
 
-#include <chronicle/common.h>
+namespace chr::renderer {
 
-#include <entt/entt.hpp>
+PlatformType Platform::type_ = PlatformType::kNone;
 
-#endif  // CHR_RENDERER_PCH_H_
+}  // namespace chr::renderer

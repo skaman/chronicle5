@@ -1,14 +1,13 @@
 find_package(Vulkan REQUIRED)
 
 add_library(chronicle-platform
-    "glfw/glfw_map.h"
-    "glfw/glfw_map.cpp"
-    "glfw/glfw_platform.cpp"
-    "glfw/glfw_platform.h"
-    "glfw/main.cpp"
     "events.h"
     "platform.h"
-    
+    "glfw/glfw_map.h"
+    "glfw/glfw_map.cc"
+    "glfw/glfw_platform.cc"
+    "glfw/glfw_platform.h"
+    "glfw/main.cc"
 )
 
 add_library(chronicle::platform ALIAS chronicle-platform)

@@ -1,32 +1,44 @@
-#pragma once
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
 
-#include "events.h"
+#ifndef CHR_PLATFORM_PLATFORM_H_
+#define CHR_PLATFORM_PLATFORM_H_
+
 #include <entt/entt.hpp>
 
+#include "events.h"
+
 namespace chr {
+
+namespace internal {
+struct GlfwPlatform;
+}
 
 template <typename T>
 concept ConceptEvent = std::is_base_of_v<Event, T>;
 
 struct Platform {
   template <ConceptEvent TEvent, auto Candidate, typename Type>
-  auto connect(Type &&value_or_instance) -> entt::connection {
+  auto Connect(Type &&value_or_instance) -> entt::connection {
     return app_dispatcher_.sink<TEvent>().template connect<Candidate>(
         std::forward<Type>(value_or_instance));
   }
 
   template <ConceptEvent TEvent, typename Type>
-  auto disconnect(Type *value_or_instance) -> void {
+  auto Disconnect(Type *value_or_instance) -> void {
     return app_dispatcher_.sink<TEvent>().disconnect(value_or_instance);
   }
 
-  auto update() const -> void { app_dispatcher_.update(); }
+  auto Update() const -> void { app_dispatcher_.update(); }
 
-private:
+ private:
   entt::dispatcher app_dispatcher_{};
   entt::dispatcher platform_dispatcher_{};
 
-  friend struct GlfwPlatform;
+  friend struct chr::internal::GlfwPlatform;
 };
 
-} // namespace chr
+}  // namespace chr
+
+#endif  // CHR_PLATFORM_PLATFORM_H_

@@ -1,6 +1,6 @@
 # https://zed0.co.uk/clang-format-configurator/
 
 ---
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 
 ...

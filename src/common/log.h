@@ -1,7 +1,13 @@
-#pragma once
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+
+#ifndef CHR_COMMON_LOG_H_
+#define CHR_COMMON_LOG_H_
+
+#include <spdlog/spdlog.h>
 
 #include <iostream>
-#include <spdlog/spdlog.h>
 
 #ifdef __cpp_lib_source_location
 #include <source_location>
@@ -21,7 +27,7 @@ struct source_location {
     return result;
   }
 };
-} // namespace std
+}  // namespace std
 #endif
 
 #ifndef CHR_MINIMUM_LOG_LEVEL
@@ -30,116 +36,128 @@ struct source_location {
 
 namespace chr::log {
 
-enum class level : int {
-  trace = 0,
-  debug = 1,
-  info = 2,
-  warn = 3,
-  err = 4,
-  critical = 5,
-  off = 6
+enum class Level : int {
+  kTrace = 0,
+  kDebug = 1,
+  kInfo = 2,
+  kWarn = 3,
+  kErr = 4,
+  kCritical = 5,
+  kOff = 6
 };
 
-constexpr auto level_to_spdlog_(level lvl) noexcept
+namespace internal {
+
+constexpr auto LevelToSpdlog(Level level) noexcept
     -> spdlog::level::level_enum {
-  switch (lvl) {
-  case chr::log::level::trace:
-    return spdlog::level::trace;
-  case chr::log::level::debug:
-    return spdlog::level::debug;
-  case chr::log::level::info:
-    return spdlog::level::info;
-  case chr::log::level::warn:
-    return spdlog::level::warn;
-  case chr::log::level::err:
-    return spdlog::level::err;
-  case chr::log::level::critical:
-    return spdlog::level::critical;
-  default:
-    return spdlog::level::off;
-    break;
+  switch (level) {
+    case chr::log::Level::kTrace:
+      return spdlog::level::trace;
+    case chr::log::Level::kDebug:
+      return spdlog::level::debug;
+    case chr::log::Level::kInfo:
+      return spdlog::level::info;
+    case chr::log::Level::kWarn:
+      return spdlog::level::warn;
+    case chr::log::Level::kErr:
+      return spdlog::level::err;
+    case chr::log::Level::kCritical:
+      return spdlog::level::critical;
+    default:
+      return spdlog::level::off;
+      break;
   }
 }
 
-template <level lvl, typename... Args>
-constexpr auto log_(const std::source_location &location,
-                    spdlog::format_string_t<Args...> format, Args &&...args)
+template <Level level, typename... Args>
+constexpr auto Log(const std::source_location &location,
+                   spdlog::format_string_t<Args...> format, Args &&...args)
     -> void {
-  if constexpr (static_cast<int>(lvl) >= CHR_MINIMUM_LOG_LEVEL) {
+  if constexpr (static_cast<int>(level) >= CHR_MINIMUM_LOG_LEVEL) {
     spdlog::default_logger_raw()->log(
         spdlog::source_loc{location.file_name(),
                            static_cast<int>(location.line()),
                            location.function_name()},
-        level_to_spdlog_(lvl), format, std::forward<Args>(args)...);
+        LevelToSpdlog(level), format, std::forward<Args>(args)...);
   }
 }
 
-auto set_level(level lvl) -> void;
+}  // namespace internal
 
-template <typename... Args> struct trace {
-  constexpr trace(
+auto SetLevel(Level level) -> void;
+
+template <typename... Args>
+struct Trace {
+  constexpr Trace(
       spdlog::format_string_t<Args...> format, Args &&...args,
       const std::source_location &loc = std::source_location::current()) {
-    log_<level::trace>(loc, format, static_cast<Args &&>(args)...);
-  }
-};
-
-template <typename... Args> struct debug {
-  constexpr debug(
-      spdlog::format_string_t<Args...> format, Args &&...args,
-      const std::source_location &loc = std::source_location::current()) {
-    log_<level::debug>(loc, format, static_cast<Args &&>(args)...);
-  }
-};
-
-template <typename... Args> struct info {
-  constexpr info(
-      spdlog::format_string_t<Args...> format, Args &&...args,
-      const std::source_location &loc = std::source_location::current()) {
-    log_<level::info>(loc, format, static_cast<Args &&>(args)...);
-  }
-};
-
-template <typename... Args> struct warn {
-  constexpr warn(
-      spdlog::format_string_t<Args...> format, Args &&...args,
-      const std::source_location &loc = std::source_location::current()) {
-    log_<level::warn>(loc, format, static_cast<Args &&>(args)...);
-  }
-};
-
-template <typename... Args> struct err {
-  constexpr err(
-      spdlog::format_string_t<Args...> format, Args &&...args,
-      const std::source_location &loc = std::source_location::current()) {
-    log_<level::err>(loc, format, static_cast<Args &&>(args)...);
-  }
-};
-
-template <typename... Args> struct critical {
-  constexpr critical(
-      spdlog::format_string_t<Args...> format, Args &&...args,
-      const std::source_location &loc = std::source_location::current()) {
-    log_<level::critical>(loc, format, static_cast<Args &&>(args)...);
+    internal::Log<Level::kTrace>(loc, format, static_cast<Args &&>(args)...);
   }
 };
 
 template <typename... Args>
-trace(spdlog::format_string_t<Args...> &&, Args &&...) -> trace<Args...>;
+struct Debug {
+  constexpr Debug(
+      spdlog::format_string_t<Args...> format, Args &&...args,
+      const std::source_location &loc = std::source_location::current()) {
+    internal::Log<Level::kDebug>(loc, format, static_cast<Args &&>(args)...);
+  }
+};
 
 template <typename... Args>
-debug(spdlog::format_string_t<Args...> &&, Args &&...) -> debug<Args...>;
+struct Info {
+  constexpr Info(
+      spdlog::format_string_t<Args...> format, Args &&...args,
+      const std::source_location &loc = std::source_location::current()) {
+    internal::Log<Level::kInfo>(loc, format, static_cast<Args &&>(args)...);
+  }
+};
 
 template <typename... Args>
-info(spdlog::format_string_t<Args...> &&, Args &&...) -> info<Args...>;
+struct Warn {
+  constexpr Warn(
+      spdlog::format_string_t<Args...> format, Args &&...args,
+      const std::source_location &loc = std::source_location::current()) {
+    internal::Log<Level::kWarn>(loc, format, static_cast<Args &&>(args)...);
+  }
+};
 
 template <typename... Args>
-warn(spdlog::format_string_t<Args...> &&, Args &&...) -> warn<Args...>;
+struct Err {
+  constexpr Err(
+      spdlog::format_string_t<Args...> format, Args &&...args,
+      const std::source_location &loc = std::source_location::current()) {
+    internal::Log<Level::kErr>(loc, format, static_cast<Args &&>(args)...);
+  }
+};
 
 template <typename... Args>
-err(spdlog::format_string_t<Args...> &&, Args &&...) -> err<Args...>;
+struct Critical {
+  constexpr Critical(
+      spdlog::format_string_t<Args...> format, Args &&...args,
+      const std::source_location &loc = std::source_location::current()) {
+    internal::Log<Level::kCritical>(loc, format, static_cast<Args &&>(args)...);
+  }
+};
 
 template <typename... Args>
-critical(spdlog::format_string_t<Args...> &&, Args &&...) -> critical<Args...>;
+Trace(spdlog::format_string_t<Args...> &&, Args &&...) -> Trace<Args...>;
 
-} // namespace chr::log
+template <typename... Args>
+Debug(spdlog::format_string_t<Args...> &&, Args &&...) -> Debug<Args...>;
+
+template <typename... Args>
+Info(spdlog::format_string_t<Args...> &&, Args &&...) -> Info<Args...>;
+
+template <typename... Args>
+Warn(spdlog::format_string_t<Args...> &&, Args &&...) -> Warn<Args...>;
+
+template <typename... Args>
+Err(spdlog::format_string_t<Args...> &&, Args &&...) -> Err<Args...>;
+
+template <typename... Args>
+Critical(spdlog::format_string_t<Args...> &&, Args &&...) -> Critical<Args...>;
+
+}  // namespace chr::log
+
+#endif  // CHR_COMMON_LOG_H_

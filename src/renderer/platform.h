@@ -1,16 +1,24 @@
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+
 #pragma once
+
+#ifndef CHR_RENDERER_PLATFORM_H_
+#define CHR_RENDERER_PLATFORM_H_
 
 namespace chr::renderer {
 
-enum class PlatformType { none, vulkan };
+enum class PlatformType { kNone, kVulkan };
 
 struct Platform {
+  static auto GetType() -> PlatformType { return type_; }
+  static auto SetType(PlatformType type) -> void { type_ = type; }
 
-  static auto type() -> PlatformType { return platform_; }
-  static auto set_type(PlatformType platform) -> void { platform_ = platform; }
-
-private:
-  static PlatformType platform_;
+ private:
+  static PlatformType type_;
 };
 
-} // namespace chr::renderer
+}  // namespace chr::renderer
+
+#endif  // CHR_RENDERER_PLATFORM_H_

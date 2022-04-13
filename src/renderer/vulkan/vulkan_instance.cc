@@ -1,5 +1,10 @@
-#include "pch.h"
+// Copyright (c) 2022 Sandro Cavazzoni.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+
 #include "vulkan_instance.h"
+
+#include "common.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -8,7 +13,7 @@
 #include <vulkan/vulkan_macos.h>
 #endif
 
-namespace chr::renderer {
+namespace chr::renderer::internal {
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -16,14 +21,14 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
               [[maybe_unused]] void *pUserData) {
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-    log::debug("{}", pCallbackData->pMessage);
+    log::Debug("{}", pCallbackData->pMessage);
   } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-    log::info("{}", pCallbackData->pMessage);
+    log::Info("{}", pCallbackData->pMessage);
   } else if (messageSeverity &
              VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-    log::warn("{}", pCallbackData->pMessage);
+    log::Warn("{}", pCallbackData->pMessage);
   } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-    log::err("{}", pCallbackData->pMessage);
+    log::Err("{}", pCallbackData->pMessage);
   }
 
   return VK_FALSE;
@@ -42,10 +47,9 @@ static VkResult CreateDebugUtilsMessengerEXT(
   }
 }
 
-static void
-DestroyDebugUtilsMessengerEXT(VkInstance instance,
-                              VkDebugUtilsMessengerEXT debugMessenger,
-                              const VkAllocationCallbacks *pAllocator) {
+static void DestroyDebugUtilsMessengerEXT(
+    VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+    const VkAllocationCallbacks *pAllocator) {
   auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
       instance, "vkDestroyDebugUtilsMessengerEXT");
   if (func != nullptr) {
@@ -54,10 +58,10 @@ DestroyDebugUtilsMessengerEXT(VkInstance instance,
 }
 
 VulkanInstance::VulkanInstance(const InstanceInfo &info) {
-  log::debug("Vulkan init");
+  log::Debug("Vulkan init");
 
   // prepare layers and extesions
-  if (info.debug_level != DebugLevel::none) {
+  if (info.debug_level != DebugLevel::kNone) {
     required_extensions_.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     required_layers_.push_back("VK_LAYER_KHRONOS_validation");
   }
@@ -83,10 +87,10 @@ VulkanInstance::VulkanInstance(const InstanceInfo &info) {
   // get and log vulkan driver version
   uint32_t version{0};
   if (vkEnumerateInstanceVersion(&version) != VK_SUCCESS) {
-    throw VulkanException("Failed to enumerate Vulkan instance version");
+    throw RendererException("Failed to enumerate Vulkan instance version");
   }
 
-  log::info("Vulkan version: {}.{}.{} (variant {})",
+  log::Info("Vulkan version: {}.{}.{} (variant {})",
             VK_API_VERSION_MAJOR(version), VK_API_VERSION_MINOR(version),
             VK_API_VERSION_PATCH(version), VK_API_VERSION_VARIANT(version));
 
@@ -104,8 +108,8 @@ VulkanInstance::VulkanInstance(const InstanceInfo &info) {
   app_info.apiVersion = VK_API_VERSION_1_2;
 
   // validate extensions and layers
-  validate_layers();
-  validate_extensions();
+  ValidateLayers();
+  ValidateExtensions();
 
   // create initilization parameters
   VkInstanceCreateInfo create_info{};
@@ -120,17 +124,17 @@ VulkanInstance::VulkanInstance(const InstanceInfo &info) {
 
   // initialize vulkan
   if (vkCreateInstance(&create_info, nullptr, &instance_) != VK_SUCCESS) {
-    throw VulkanException("Failed to create Vulkan instance");
+    throw RendererException("Failed to create Vulkan instance");
   }
 
   try {
-    setup_debug_messenger(info.debug_level);
+    SetupDebugMessenger(info.debug_level);
   } catch (std::exception) {
     vkDestroyInstance(instance_, nullptr);
     throw;
   }
 
-  debug::assert_true(instance_ != VK_NULL_HANDLE, "instance_ can't be null");
+  debug::Assert(instance_ != VK_NULL_HANDLE, "instance_ can't be null");
 }
 
 VulkanInstance::~VulkanInstance() {
@@ -140,54 +144,55 @@ VulkanInstance::~VulkanInstance() {
   vkDestroyInstance(instance_, nullptr);
 }
 
-auto VulkanInstance::test() -> void { chr::log::info("vulkan test"); }
+auto VulkanInstance::test() -> void { chr::log::Info("vulkan test"); }
 
-auto VulkanInstance::layers() const -> std::vector<VkLayerProperties> {
+auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
   uint32_t count;
   if (vkEnumerateInstanceLayerProperties(&count, nullptr) != VK_SUCCESS) {
-    throw VulkanException("Failed to enumerate Vulkan layer properties");
+    throw RendererException("Failed to enumerate Vulkan layer properties");
   }
 
   std::vector<VkLayerProperties> layers(count);
   if (vkEnumerateInstanceLayerProperties(&count, layers.data()) != VK_SUCCESS) {
-    throw VulkanException("Failed to enumerate Vulkan layer properties");
+    throw RendererException("Failed to enumerate Vulkan layer properties");
   }
 
   return layers;
 }
 
-auto VulkanInstance::extensions() const -> std::vector<VkExtensionProperties> {
+auto VulkanInstance::GetExtensions() const
+    -> std::vector<VkExtensionProperties> {
   uint32_t count = 0;
   if (vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr) !=
       VK_SUCCESS) {
-    throw VulkanException("Failed to enumerate Vulkan extension properties");
+    throw RendererException("Failed to enumerate Vulkan extension properties");
   }
 
   std::vector<VkExtensionProperties> extensions(count);
   if (vkEnumerateInstanceExtensionProperties(nullptr, &count,
                                              extensions.data()) != VK_SUCCESS) {
-    throw VulkanException("Failed to enumerate Vulkan extension properties");
+    throw RendererException("Failed to enumerate Vulkan extension properties");
   }
 
   return extensions;
 }
 
-auto VulkanInstance::setup_debug_messenger(DebugLevel level) -> void {
-  if (level == DebugLevel::none) {
+auto VulkanInstance::SetupDebugMessenger(DebugLevel level) -> void {
+  if (level == DebugLevel::kNone) {
     return;
   }
 
   VkDebugUtilsMessageSeverityFlagsEXT severityFlags = 0;
   switch (level) {
-  case DebugLevel::verbose:
-    severityFlags |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
-  case DebugLevel::warning:
-    severityFlags |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-  case DebugLevel::error:
-    severityFlags |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    break;
-  default:
-    break;
+    case DebugLevel::kVerbose:
+      severityFlags |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+    case DebugLevel::kWarning:
+      severityFlags |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+    case DebugLevel::kError:
+      severityFlags |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+      break;
+    default:
+      break;
   }
 
   VkDebugUtilsMessengerCreateInfoEXT createInfo{};
@@ -197,25 +202,25 @@ auto VulkanInstance::setup_debug_messenger(DebugLevel level) -> void {
                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
   createInfo.pfnUserCallback = debugCallback;
-  createInfo.pUserData = nullptr; // Optional
+  createInfo.pUserData = nullptr;  // Optional
 
   if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr,
                                    &debug_messenger_) != VK_SUCCESS) {
-    throw VulkanException("Failed to set up debug messenger");
+    throw RendererException("Failed to set up debug messenger");
   }
 }
 
-auto VulkanInstance::validate_layers() const -> void {
-  log::debug("Requested layers:");
+auto VulkanInstance::ValidateLayers() const -> void {
+  log::Debug("Requested layers:");
   for (const auto &layer : required_layers_) {
-    log::debug("  - {}", layer);
+    log::Debug("  - {}", layer);
   }
 
-  auto available_layers = layers();
+  auto available_layers = GetLayers();
 
-  log::debug("Available layers:");
+  log::Debug("Available layers:");
   for (const auto &available_layer : available_layers) {
-    log::debug("  - {}", available_layer.layerName);
+    log::Debug("  - {}", available_layer.layerName);
   }
 
   for (const auto &layer : required_layers_) {
@@ -228,22 +233,22 @@ auto VulkanInstance::validate_layers() const -> void {
     }
 
     if (!found) {
-      throw VulkanException(fmt::format("Layer {} not found", layer));
+      throw RendererException(fmt::format("Layer {} not found", layer));
     }
   }
 }
 
-auto VulkanInstance::validate_extensions() const -> void {
-  log::debug("Requested extensions:");
+auto VulkanInstance::ValidateExtensions() const -> void {
+  log::Debug("Requested extensions:");
   for (const auto &extension : required_extensions_) {
-    log::debug("  - {}", extension);
+    log::Debug("  - {}", extension);
   }
 
-  auto available_extensions = extensions();
+  auto available_extensions = GetExtensions();
 
-  log::debug("Available extensions:");
+  log::Debug("Available extensions:");
   for (const auto &availableExtension : available_extensions) {
-    log::debug("  - {}", availableExtension.extensionName);
+    log::Debug("  - {}", availableExtension.extensionName);
   }
 
   for (const auto &extension : required_extensions_) {
@@ -256,9 +261,9 @@ auto VulkanInstance::validate_extensions() const -> void {
     }
 
     if (!found) {
-      throw VulkanException(fmt::format("Extension {} not found", extension));
+      throw RendererException(fmt::format("Extension {} not found", extension));
     }
   }
 }
 
-} // namespace chr::renderer
+}  // namespace chr::renderer::internal
