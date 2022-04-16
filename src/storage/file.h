@@ -48,12 +48,26 @@ enum class SeekDir {
   kEnd      //!< Seek from the end of the file.
 };
 
+//! @brief Handle a file from the storage.
 struct File {
+  //! @brief The copy constructor is not supported.
+  //! @param Object to copy.
   File(const File&) = delete;
+
+  //! @brief Move constructor.
+  //! @param other Object to move.
   File(File&& other) noexcept : file_(std::move(other.file_)) {}
+
   ~File() = default;
 
+  //! @brief The copy assignment operator is not supported.
+  //! @param Object to copy.
+  //! @return Current object.
   File& operator=(const File&) = delete;
+
+  //! @brief Move assignment operator.
+  //! @param other Object to move.
+  //! @return Current object.
   File& operator=(File&& other) noexcept {
     std::swap(file_, other.file_);
     return *this;

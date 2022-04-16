@@ -49,11 +49,24 @@ struct Storage {
   //! @param type Requested backend type
   explicit Storage(BackendType type);
 
+  //! @brief The copy constructor is not supported.
+  //! @param Object to copy.
   Storage(const Storage &) = delete;
+
+  //! @brief Move constructor.
+  //! @param other Object to move.
   Storage(Storage &&other) noexcept : storage_(std::move(other.storage_)) {}
+
   ~Storage() = default;
 
+  //! @brief The copy assignment operator is not supported.
+  //! @param Object to copy.
+  //! @return Current object.
   Storage &operator=(const Storage &) = delete;
+
+  //! @brief Move assignment operator.
+  //! @param other Object to move.
+  //! @return Current object.
   Storage &operator=(Storage &&other) noexcept {
     std::swap(storage_, other.storage_);
     return *this;

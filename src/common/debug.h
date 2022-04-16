@@ -11,6 +11,7 @@
 
 namespace chr::debug {
 
+namespace internal {
 struct AssertFailure {
   template <typename Fun>
   explicit AssertFailure(Fun fun) {
@@ -18,12 +19,16 @@ struct AssertFailure {
     std::quick_exit(EXIT_FAILURE);
   }
 };
+}  // namespace internal
 
+//! @brief Assert that a condition is true.
+//! @param condition Condition to assert.
+//! @param message Message that describe the assert.
 constexpr auto Assert(bool condition, const std::string &message) -> void {
   if constexpr (CHR_ENABLE_ASSERTS) {
     if (!condition) {
       log::Critical("{}", message);
-      throw AssertFailure([] { assert(false); });
+      throw internal::AssertFailure([] { assert(false); });
     }
   }
 }
