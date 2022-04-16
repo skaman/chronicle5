@@ -11,6 +11,18 @@
 
 namespace chr::renderer {
 
+namespace internal {
+struct InstanceI : entt::type_list<> {
+  template <typename Base>
+  struct type : Base {
+    auto test() -> void { this->template invoke<0>(*this); }
+  };
+
+  template <typename Type>
+  using impl = entt::value_list<&Type::test>;
+};
+}  // namespace internal
+
 enum class DebugLevel { kNone, kVerbose, kWarning, kError };
 
 struct Version {
@@ -31,16 +43,6 @@ struct InstanceInfo {
   Version engine_version{0, 0, 0};
 };
 
-struct InstanceI : entt::type_list<> {
-  template <typename Base>
-  struct type : Base {
-    auto test() -> void { this->template invoke<0>(*this); }
-  };
-
-  template <typename Type>
-  using impl = entt::value_list<&Type::test>;
-};
-
 struct Instance : NonCopyable {
   explicit Instance(const InstanceInfo &info);
 
@@ -52,7 +54,7 @@ struct Instance : NonCopyable {
     return *static_cast<const Type *>(instance_.data());
   }
 
-  entt::basic_poly<InstanceI, 32> instance_{};
+  entt::basic_poly<internal::InstanceI, 32> instance_{};
 
   friend struct Surface;
   friend struct Device;

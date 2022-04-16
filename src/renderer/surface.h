@@ -9,6 +9,7 @@
 
 namespace chr::renderer {
 
+namespace internal {
 struct SurfaceI : entt::type_list<> {
   template <typename Base>
   struct type : Base {
@@ -18,6 +19,7 @@ struct SurfaceI : entt::type_list<> {
   template <typename Type>
   using impl = entt::value_list<&Type::test>;
 };
+}  // namespace internal
 
 struct Instance;
 
@@ -37,7 +39,7 @@ struct Surface : NonCopyable {
     return *static_cast<const Type *>(surface_.data());
   }
 
-  entt::basic_poly<SurfaceI, 32> surface_{};
+  entt::basic_poly<internal::SurfaceI, 32> surface_{};
 
   friend struct Device;
 };

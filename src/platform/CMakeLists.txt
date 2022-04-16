@@ -25,8 +25,6 @@ target_link_libraries(chronicle-platform
     PUBLIC
         glfw
         EnTT::EnTT
-        Vulkan::Headers
-        Vulkan::Vulkan
         chronicle::common
         chronicle::renderer
 )

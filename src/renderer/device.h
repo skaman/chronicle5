@@ -9,6 +9,7 @@
 
 namespace chr::renderer {
 
+namespace internal {
 struct DeviceI : entt::type_list<> {
   template <typename Base>
   struct type : Base {
@@ -18,6 +19,7 @@ struct DeviceI : entt::type_list<> {
   template <typename Type>
   using impl = entt::value_list<&Type::test>;
 };
+}  // namespace internal
 
 struct Instance;
 struct Surface;
@@ -28,7 +30,7 @@ struct Device : NonCopyable {
   auto test() -> void { device_->test(); }
 
  private:
-  entt::basic_poly<DeviceI, 32> device_{};
+  entt::basic_poly<internal::DeviceI, 32> device_{};
 };
 
 }  // namespace chr::renderer
