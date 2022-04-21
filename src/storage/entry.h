@@ -43,23 +43,17 @@ struct FilesystemStorage;
 //! @brief Handle an entry from the storage.
 struct Entry {
   //! @brief The copy constructor is not supported.
-  //! @param Object to copy.
   Entry(const Entry&) = delete;
 
   //! @brief Move constructor.
-  //! @param other Object to move.
-  Entry(Entry&& other) noexcept : entry_(std::move(other.entry_)) {}
+  Entry(Entry&& other) noexcept : entry_{std::move(other.entry_)} {}
 
   ~Entry() = default;
 
   //! @brief The copy assignment operator is not supported.
-  //! @param Object to copy.
-  //! @return Current object.
   Entry& operator=(const Entry&) = delete;
 
   //! @brief Move assignment operator.
-  //! @param other Object to move.
-  //! @return Current object.
   Entry& operator=(Entry&& other) noexcept {
     std::swap(entry_, other.entry_);
     return *this;

@@ -1,5 +1,5 @@
 add_library(chronicle-common
-    "copyable.h"
+    
     "debug.h"
     "log.cc"
     "log.h"

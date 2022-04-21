@@ -51,7 +51,9 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
 }
 
 VulkanSurface::~VulkanSurface() {
-  vkDestroySurfaceKHR(instance_.GetNativeInstance(), surface_, nullptr);
+  if (surface_ != VK_NULL_HANDLE) {
+    vkDestroySurfaceKHR(instance_.GetNativeInstance(), surface_, nullptr);
+  }
 }
 
 }  // namespace chr::renderer::internal

@@ -32,7 +32,27 @@ struct VulkanSurface;
 struct VulkanDevice : DeviceI {
   explicit VulkanDevice(const VulkanInstance &instance,
                         const VulkanSurface &surface);
+
+  VulkanDevice(const VulkanDevice &) = delete;
+  VulkanDevice(VulkanDevice &&other) noexcept
+      : instance_{other.instance_},
+        surface_{other.surface_},
+        physical_device_{std::move(other.physical_device_)},
+        device_{std::move(other.device_)},
+        graphics_queue_{std::move(other.graphics_queue_)},
+        present_queue_{std::move(other.present_queue_)},
+        device_extensions_{std::move(other.device_extensions_)} {
+    other.physical_device_ = VK_NULL_HANDLE;
+    other.device_ = VK_NULL_HANDLE;
+    other.graphics_queue_ = VK_NULL_HANDLE;
+    other.present_queue_ = VK_NULL_HANDLE;
+    other.device_extensions_.clear();
+  }
+
   ~VulkanDevice();
+
+  VulkanDevice &operator=(const VulkanDevice &) = delete;
+  VulkanDevice &operator=(VulkanDevice &&other) = delete;
 
   auto test() -> void {}
 
@@ -63,7 +83,7 @@ struct VulkanDevice : DeviceI {
   VkQueue graphics_queue_{VK_NULL_HANDLE};
   VkQueue present_queue_{VK_NULL_HANDLE};
 
-  std::vector<const char *> device_extensions_;
+  std::vector<const char *> device_extensions_{};
 };
 
 }  // namespace chr::renderer::internal

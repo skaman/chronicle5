@@ -23,18 +23,29 @@ VulkanDevice::VulkanDevice(const VulkanInstance &instance,
   CreateLogicalDevice();
 }
 
-VulkanDevice::~VulkanDevice() { vkDestroyDevice(device_, nullptr); }
+VulkanDevice::~VulkanDevice() {
+  if (device_ != VK_NULL_HANDLE) {
+    vkDestroyDevice(device_, nullptr);
+  }
+}
 
 auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
   uint32_t count = 0;
-  vkEnumeratePhysicalDevices(instance_.GetNativeInstance(), &count, nullptr);
+  if (vkEnumeratePhysicalDevices(instance_.GetNativeInstance(), &count,
+                                 nullptr) != VK_SUCCESS) {
+    throw RendererException("Failed to enumerate Vulkan physical devices");
+  }
+
   if (count == 0) {
-    throw RendererException("Failed to find GPUs with Vulkan support");
+    return {};
   }
 
   std::vector<VkPhysicalDevice> devices(count);
-  vkEnumeratePhysicalDevices(instance_.GetNativeInstance(), &count,
-                             devices.data());
+  if (vkEnumeratePhysicalDevices(instance_.GetNativeInstance(), &count,
+                                 devices.data()) != VK_SUCCESS) {
+    throw RendererException("Failed to enumerate Vulkan physical devices");
+  }
+
   return devices;
 }
 
@@ -42,6 +53,10 @@ auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const
     -> std::vector<VkQueueFamilyProperties> {
   uint32_t count = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
+
+  if (count == 0) {
+    return {};
+  }
 
   std::vector<VkQueueFamilyProperties> families(count);
   vkGetPhysicalDeviceQueueFamilyProperties(device, &count, families.data());
@@ -52,11 +67,23 @@ auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const
 auto VulkanDevice::GetExtensions(VkPhysicalDevice device) const
     -> std::vector<VkExtensionProperties> {
   uint32_t count;
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
+  if (vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr) !=
+      VK_SUCCESS) {
+    throw RendererException(
+        "Failed to enumerate Vulkan device extension properties");
+  }
+
+  if (count == 0) {
+    return {};
+  }
 
   std::vector<VkExtensionProperties> extensions(count);
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &count,
-                                       extensions.data());
+  if (vkEnumerateDeviceExtensionProperties(device, nullptr, &count,
+                                           extensions.data()) != VK_SUCCESS) {
+    throw RendererException(
+        "Failed to enumerate Vulkan device extension properties");
+  }
+
   return extensions;
 }
 

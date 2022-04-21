@@ -5,6 +5,8 @@
 #include "vulkan_instance.h"
 
 #include "common.h"
+#include "vulkan_device.h"
+#include "vulkan_surface.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -138,18 +140,34 @@ VulkanInstance::VulkanInstance(const InstanceInfo &info) {
 }
 
 VulkanInstance::~VulkanInstance() {
-  if (debug_messenger_) {
-    DestroyDebugUtilsMessengerEXT(instance_, debug_messenger_, nullptr);
+  if (instance_ != VK_NULL_HANDLE) {
+    if (debug_messenger_ != VK_NULL_HANDLE) {
+      DestroyDebugUtilsMessengerEXT(instance_, debug_messenger_, nullptr);
+    }
+    vkDestroyInstance(instance_, nullptr);
   }
-  vkDestroyInstance(instance_, nullptr);
 }
 
-auto VulkanInstance::test() -> void { chr::log::Info("vulkan test"); }
+auto VulkanInstance::CreateSurface(const SurfaceInfo &info) -> Surface {
+  Surface surface{};
+  surface.Emplace<VulkanSurface>(*this, info);
+  return surface;
+}
+
+auto VulkanInstance::CreateDevice(const Surface &surface) -> Device {
+  Device device{};
+  device.Emplace<VulkanDevice>(*this, surface.GetNativeType<VulkanSurface>());
+  return device;
+}
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
   uint32_t count;
   if (vkEnumerateInstanceLayerProperties(&count, nullptr) != VK_SUCCESS) {
     throw RendererException("Failed to enumerate Vulkan layer properties");
+  }
+
+  if (count == 0) {
+    return {};
   }
 
   std::vector<VkLayerProperties> layers(count);
@@ -166,6 +184,10 @@ auto VulkanInstance::GetExtensions() const
   if (vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr) !=
       VK_SUCCESS) {
     throw RendererException("Failed to enumerate Vulkan extension properties");
+  }
+
+  if (count == 0) {
+    return {};
   }
 
   std::vector<VkExtensionProperties> extensions(count);

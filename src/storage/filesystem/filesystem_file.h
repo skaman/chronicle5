@@ -17,6 +17,11 @@ struct FilesystemFile : FileI {
   explicit FilesystemFile(std::string_view path) : path_{path} {
     file_.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   };
+
+  FilesystemFile(const FilesystemFile&) = delete;
+  FilesystemFile(FilesystemFile&& other) noexcept
+      : path_{std::move(other.path_)}, file_{std::move(other.file_)} {}
+
   ~FilesystemFile() {
     if (IsOpen()) {
       try {
@@ -26,6 +31,9 @@ struct FilesystemFile : FileI {
       }
     }
   }
+
+  FilesystemFile& operator=(const FilesystemFile&) = delete;
+  FilesystemFile& operator=(FilesystemFile&& other) noexcept = delete;
 
   auto Open() -> void { file_.open(path_, std::ios::binary | std::ios::ate); }
   auto IsOpen() const -> bool { return file_.is_open(); }

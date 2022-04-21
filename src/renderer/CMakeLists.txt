@@ -3,13 +3,12 @@ find_package(Vulkan REQUIRED)
 add_library(chronicle-renderer
     "common.h"
     "device.h"
-    "device.cc"
     "instance.cc"
     "instance.h"
     "pch.h"
-    "platform.h"
-    "platform.cc"
-    "surface.cc"
+    "shader.h"
+    "shader_compiler.cc"
+    "shader_compiler.h"
     "surface.h"
     "vulkan/vulkan_device.cc"
     "vulkan/vulkan_device.h"
@@ -43,4 +42,6 @@ target_link_libraries(chronicle-renderer
         Vulkan::Headers
         Vulkan::Vulkan
         chronicle::common
+        #Vulkan::glslc
+        #Vulkan::glslangValidator
 )

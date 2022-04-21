@@ -5,7 +5,6 @@
 #ifndef CHR_COMMON_H_
 #define CHR_COMMON_H_
 
-#include "../../src/common/copyable.h"
 #include "../../src/common/debug.h"
 #include "../../src/common/log.h"
 

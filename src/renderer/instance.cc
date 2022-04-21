@@ -4,14 +4,13 @@
 
 #include "instance.h"
 
-#include "platform.h"
 #include "vulkan/vulkan_instance.h"
 
 namespace chr::renderer {
 
-Instance::Instance(const InstanceInfo &info) {
-  switch (Platform::GetType()) {
-    case PlatformType::kVulkan:
+Instance::Instance(BackendType type, const InstanceInfo &info) {
+  switch (type) {
+    case BackendType::kVulkan:
       instance_.template emplace<internal::VulkanInstance>(info);
       break;
     default:

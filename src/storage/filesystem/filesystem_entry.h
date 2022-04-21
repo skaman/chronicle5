@@ -15,8 +15,15 @@
 namespace chr::storage::internal {
 
 struct FilesystemEntry : EntryI {
-  explicit FilesystemEntry(const std::filesystem::directory_entry &dir_entry)
+  explicit FilesystemEntry(const std::filesystem::directory_entry& dir_entry)
       : dir_entry_{dir_entry} {};
+
+  FilesystemEntry(const FilesystemEntry&) = delete;
+  FilesystemEntry(FilesystemEntry&& other) noexcept
+      : dir_entry_{std::move(other.dir_entry_)} {}
+
+  FilesystemEntry& operator=(const FilesystemEntry&) = delete;
+  FilesystemEntry& operator=(FilesystemEntry&& other) noexcept = delete;
 
   auto Name() const -> std::string {
     return dir_entry_.path().filename().string();

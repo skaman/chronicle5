@@ -6,8 +6,8 @@
 #define CHR_RENDERER_H_
 
 #include "../../src/renderer/instance.h"
-#include "../../src/renderer/platform.h"
 #include "../../src/renderer/surface.h"
 #include "../../src/renderer/device.h"
+#include "../../src/renderer/shader.h"
 
 #endif  // CHR_RENDERER_H_

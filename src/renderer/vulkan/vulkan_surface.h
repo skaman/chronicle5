@@ -16,7 +16,18 @@ struct VulkanInstance;
 struct VulkanSurface : SurfaceI {
   explicit VulkanSurface(const VulkanInstance &instance,
                          const SurfaceInfo &info);
+
+  VulkanSurface(const VulkanSurface &) = delete;
+
+  VulkanSurface(VulkanSurface &&other) noexcept
+      : instance_{other.instance_}, surface_{other.surface_} {
+    other.surface_ = VK_NULL_HANDLE;
+  }
+
   ~VulkanSurface();
+
+  VulkanSurface &operator=(const VulkanSurface &) = delete;
+  VulkanSurface &operator=(VulkanSurface &&other) = delete;
 
   auto test() -> void {}
 

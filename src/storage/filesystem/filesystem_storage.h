@@ -15,6 +15,13 @@ namespace chr::storage::internal {
 struct FilesystemStorage : StorageI {
   explicit FilesystemStorage() = default;
 
+  FilesystemStorage(const FilesystemStorage&) = delete;
+  FilesystemStorage(FilesystemStorage&& other) noexcept
+      : base_path_{std::move(other.base_path_)} {}
+
+  FilesystemStorage& operator=(const FilesystemStorage&) = delete;
+  FilesystemStorage& operator=(FilesystemStorage&& other) noexcept = delete;
+
   auto SetBasePath(std::string_view path) -> void { base_path_ = path; }
 
   auto GetEntries(std::string_view path) const -> std::vector<Entry>;

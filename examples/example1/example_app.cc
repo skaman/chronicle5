@@ -13,6 +13,7 @@ auto ExampleApp::Init() -> void {
 
   chr::storage::Storage storage{chr::storage::BackendType::kFileSystem};
   storage.SetBasePath("F:/Progetti/TerrainGenerator");
+
   for (auto const& entry : storage.GetEntries("/")) {
     chr::log::Info("{} - {} - {} - {} - {}", entry.Name(), entry.IsDirectory(),
                    entry.Extension(), entry.HaveExtension(), entry.Size());

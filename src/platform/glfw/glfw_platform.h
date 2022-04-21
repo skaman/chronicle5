@@ -5,6 +5,10 @@
 #ifndef CHR_PLATFORM_GLFW_PLATFORM_H_
 #define CHR_PLATFORM_GLFW_PLATFORM_H_
 
+#define VK_ENABLE_BETA_EXTENSIONS
+#include <vulkan/vulkan.h>
+
+#define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -31,6 +35,6 @@ struct GlfwPlatform {
   GLFWwindow *window_{nullptr};
 };
 
-}  // namespace chr::internal
+}  // namespace chr::platform::internal
 
 #endif  // CHR_PLATFORM_GLFW_PLATFORM_H_

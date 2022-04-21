@@ -16,9 +16,22 @@ struct VulkanInstance : InstanceI {
   ~VulkanInstance();
 
   VulkanInstance(const VulkanInstance &) = delete;
-  VulkanInstance &operator=(const VulkanInstance &) = delete;
+  VulkanInstance(VulkanInstance &&other) noexcept
+      : instance_{other.instance_},
+        debug_messenger_{other.debug_messenger_},
+        required_extensions_{std::move(other.required_extensions_)},
+        required_layers_{std::move(other.required_layers_)} {
+    other.instance_ = VK_NULL_HANDLE;
+    other.debug_messenger_ = VK_NULL_HANDLE;
+    other.required_extensions_.clear();
+    other.required_layers_.clear();
+  }
 
-  auto test() -> void;
+  VulkanInstance &operator=(const VulkanInstance &) = delete;
+  VulkanInstance &operator=(VulkanInstance &&other) = delete;
+
+  auto CreateSurface(const SurfaceInfo &info) -> Surface;
+  auto CreateDevice(const Surface &surface) -> Device;
 
   auto GetLayers() const -> std::vector<VkLayerProperties>;
   auto GetExtensions() const -> std::vector<VkExtensionProperties>;
