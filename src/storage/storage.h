@@ -37,15 +37,15 @@ template <typename T>
 concept ConceptStorage = std::is_base_of_v<StorageI, T>;
 }  // namespace internal
 
-//! @brief Storage backend type
+//! @brief Storage backend type.
 enum class BackendType {
   kFileSystem  //!< Local file system.
 };
 
-//! @brief Handle a storage backend for I/O operations on files
+//! @brief Handle a storage backend for I/O operations on files.
 struct Storage {
   //! @brief Construct the storage object for the requested backend type.
-  //! @param type Requested backend type
+  //! @param type Requested backend type.
   explicit Storage(BackendType type);
 
   //! @brief The copy constructor is not supported.

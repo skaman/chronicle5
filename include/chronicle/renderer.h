@@ -9,5 +9,6 @@
 #include "../../src/renderer/surface.h"
 #include "../../src/renderer/device.h"
 #include "../../src/renderer/shader.h"
+#include "../../src/renderer/shader_compiler.h"
 
 #endif  // CHR_RENDERER_H_

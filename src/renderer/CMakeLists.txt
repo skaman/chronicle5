@@ -42,6 +42,5 @@ target_link_libraries(chronicle-renderer
         Vulkan::Headers
         Vulkan::Vulkan
         chronicle::common
-        #Vulkan::glslc
-        #Vulkan::glslangValidator
+        shaderc
 )

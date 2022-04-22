@@ -8,6 +8,7 @@
 #include <chronicle/common.h>
 #include <chronicle/platform.h>
 #include <chronicle/storage.h>
+#include <chronicle/renderer.h>
 
 struct ExampleApp : chr::platform::App {
   ExampleApp() = default;

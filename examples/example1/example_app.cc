@@ -12,16 +12,31 @@ auto ExampleApp::Init() -> void {
       .template Connect<chr::platform::KeyEvent, &ExampleApp::OnKeyEvent>(this);
 
   chr::storage::Storage storage{chr::storage::BackendType::kFileSystem};
-  storage.SetBasePath("F:/Progetti/TerrainGenerator");
+  storage.SetBasePath("../assets");
 
   for (auto const& entry : storage.GetEntries("/")) {
     chr::log::Info("{} - {} - {} - {} - {}", entry.Name(), entry.IsDirectory(),
                    entry.Extension(), entry.HaveExtension(), entry.Size());
   }
 
-  auto file = storage.GetFile("/README.md");
-  file.Open();
-  auto data = file.ReadAll();
+  auto triangle_shader_frag = storage.GetFile("/triangle_shader.frag");
+  triangle_shader_frag.Open();
+  auto triangle_shader_frag_data = triangle_shader_frag.ReadAll();
+  triangle_shader_frag.Close();
+
+  auto triangle_shader_vert = storage.GetFile("/triangle_shader.vert");
+  triangle_shader_vert.Open();
+  auto triangle_shader_vert_data = triangle_shader_vert.ReadAll();
+
+  chr::renderer::ShaderCompiler compiler{};
+
+  auto fragment_shader =
+      compiler.Compile(triangle_shader_frag_data, "triangle_shader.frag",
+                       chr::renderer::ShaderStage::kFragment);
+
+  auto vertex_shader =
+      compiler.Compile(triangle_shader_vert_data, "triangle_shader.vert",
+                       chr::renderer::ShaderStage::kVertex);
 }
 
 auto ExampleApp::Destroy() -> void {
