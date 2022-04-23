@@ -27,6 +27,7 @@ auto ExampleApp::Init() -> void {
   auto triangle_shader_vert = storage.GetFile("/triangle_shader.vert");
   triangle_shader_vert.Open();
   auto triangle_shader_vert_data = triangle_shader_vert.ReadAll();
+  triangle_shader_vert.Close();
 
   chr::renderer::ShaderCompiler compiler{};
 

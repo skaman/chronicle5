@@ -42,5 +42,7 @@ target_link_libraries(chronicle-renderer
         Vulkan::Headers
         Vulkan::Vulkan
         chronicle::common
+        spirv-cross-core
+        spirv-cross-glsl
         shaderc
 )
