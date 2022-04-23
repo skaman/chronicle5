@@ -16,6 +16,8 @@
 
 namespace chr::renderer::internal {
 
+static_assert(sizeof(VulkanSurface) <= kSurfaceSize);
+
 VulkanSurface::VulkanSurface(const VulkanInstance &instance,
                              const SurfaceInfo &info)
     : instance_(instance) {

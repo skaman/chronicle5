@@ -10,6 +10,8 @@
 namespace chr::renderer {
 
 namespace internal {
+constexpr size_t kSurfaceSize = 16;
+
 struct SurfaceI : entt::type_list<> {
   template <typename Base>
   struct type : Base {
@@ -75,7 +77,7 @@ struct Surface {
     surface_.emplace<Type>(std::forward<Args>(args)...);
   }
 
-  entt::basic_poly<internal::SurfaceI, 32> surface_{};
+  entt::basic_poly<internal::SurfaceI, internal::kSurfaceSize> surface_{};
 
   friend struct internal::VulkanInstance;
 };

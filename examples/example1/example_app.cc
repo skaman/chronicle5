@@ -8,8 +8,10 @@ CHR_INIT { chr::platform::RegisterApp<ExampleApp>(); }
 
 auto ExampleApp::Init() -> void {
   chr::log::Info("init");
-  GetPlatform()
-      .template Connect<chr::platform::KeyEvent, &ExampleApp::OnKeyEvent>(this);
+  auto& platform = entt::locator<chr::platform::Platform>::value();
+
+  platform.template Connect<chr::platform::KeyEvent, &ExampleApp::OnKeyEvent>(
+      this);
 
   chr::storage::Storage storage{chr::storage::BackendType::kFileSystem};
   storage.SetBasePath("../assets");
@@ -31,21 +33,34 @@ auto ExampleApp::Init() -> void {
 
   chr::renderer::ShaderCompiler compiler{};
 
-  auto fragment_shader =
+  auto fragment_shader_compiled =
       compiler.Compile(triangle_shader_frag_data, "triangle_shader.frag",
                        chr::renderer::ShaderStage::kFragment);
 
-  auto vertex_shader =
+  auto vertex_shader_compiled =
       compiler.Compile(triangle_shader_vert_data, "triangle_shader.vert",
                        chr::renderer::ShaderStage::kVertex);
+
+  auto& instance = platform.GetInstance();
+  const auto& device = platform.GetDevice();
+  auto fragment_shader =
+      instance.CreateShader(device, fragment_shader_compiled.data);
+  auto vertex_shader =
+      instance.CreateShader(device, vertex_shader_compiled.data);
 }
 
 auto ExampleApp::Destroy() -> void {
   chr::log::Info("destroy");
-  GetPlatform().template Disconnect<chr::platform::KeyEvent>(this);
+  auto& platform = entt::locator<chr::platform::Platform>::value();
+
+  platform.template Disconnect<chr::platform::KeyEvent>(this);
 }
 
-auto ExampleApp::Update() -> void { GetPlatform().Update(); }
+auto ExampleApp::Update() -> void {
+  const auto& platform = entt::locator<chr::platform::Platform>::value();
+
+  platform.Update();
+}
 
 auto ExampleApp::OnKeyEvent(const chr::platform::KeyEvent& key_event) const
     -> void {

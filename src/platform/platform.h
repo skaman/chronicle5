@@ -5,6 +5,8 @@
 #ifndef CHR_PLATFORM_PLATFORM_H_
 #define CHR_PLATFORM_PLATFORM_H_
 
+#include <chronicle/renderer.h>
+
 #include <entt/entt.hpp>
 
 #include "events.h"
@@ -19,6 +21,10 @@ template <typename T>
 concept ConceptEvent = std::is_base_of_v<Event, T>;
 
 struct Platform {
+  explicit Platform(renderer::Instance &instance, renderer::Surface &surface,
+                    renderer::Device &device)
+      : instance_{instance}, surface_{surface}, device_{device} {}
+
   template <ConceptEvent TEvent, auto Candidate, typename Type>
   auto Connect(Type &&value_or_instance) -> entt::connection {
     return app_dispatcher_.sink<TEvent>().template connect<Candidate>(
@@ -32,13 +38,27 @@ struct Platform {
 
   auto Update() const -> void { app_dispatcher_.update(); }
 
+  [[nodiscard]] auto GetInstance() const -> renderer::Instance & {
+    return instance_;
+  }
+
+  [[nodiscard]] auto GetSurface() const -> renderer::Surface & {
+    return surface_;
+  }
+
+  [[nodiscard]] auto GetDevice() const -> renderer::Device & { return device_; }
+
  private:
+  renderer::Instance &instance_;
+  renderer::Surface &surface_;
+  renderer::Device &device_;
+
   entt::dispatcher app_dispatcher_{};
   entt::dispatcher platform_dispatcher_{};
 
   friend struct chr::platform::internal::GlfwPlatform;
 };
 
-}  // namespace chr
+}  // namespace chr::platform
 
 #endif  // CHR_PLATFORM_PLATFORM_H_

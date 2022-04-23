@@ -15,6 +15,8 @@ add_library(chronicle-renderer
     "vulkan/vulkan_instance.cc"
     "vulkan/vulkan_instance.h"
     "vulkan/vulkan_pch.h"
+    "vulkan/vulkan_shader.cc"
+    "vulkan/vulkan_shader.h"
     "vulkan/vulkan_surface.cc"
     "vulkan/vulkan_surface.h"
 )

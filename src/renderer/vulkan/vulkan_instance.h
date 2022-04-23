@@ -32,6 +32,8 @@ struct VulkanInstance : InstanceI {
 
   auto CreateSurface(const SurfaceInfo &info) -> Surface;
   auto CreateDevice(const Surface &surface) -> Device;
+  auto CreateShader(const Device &device,
+                    const std::vector<uint8_t> &data) const -> Shader;
 
   auto GetLayers() const -> std::vector<VkLayerProperties>;
   auto GetExtensions() const -> std::vector<VkExtensionProperties>;

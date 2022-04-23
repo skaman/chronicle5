@@ -9,6 +9,9 @@
 #include "vulkan_surface.h"
 
 namespace chr::renderer::internal {
+
+static_assert(sizeof(VulkanDevice) <= kDeviceSize);
+
 VulkanDevice::VulkanDevice(const VulkanInstance &instance,
                            const VulkanSurface &surface)
     : instance_{instance}, surface_{surface} {

@@ -9,11 +9,14 @@
 
 #include "device.h"
 #include "pch.h"
+#include "shader.h"
 #include "surface.h"
 
 namespace chr::renderer {
 
 namespace internal {
+constexpr size_t kInstanceSize = 80;
+
 struct InstanceI : entt::type_list<> {
   template <typename Base>
   struct type : Base {
@@ -23,10 +26,15 @@ struct InstanceI : entt::type_list<> {
     auto CreateDevice(const Surface& surface) -> Device {
       return this->template invoke<1>(*this, surface);
     }
+    auto CreateShader(const Device& device, const std::vector<uint8_t>& data)
+        -> Shader {
+      return this->template invoke<2>(*this, device, data);
+    }
   };
 
   template <typename Type>
-  using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice>;
+  using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice,
+                                &Type::CreateShader>;
 };
 
 template <typename T>
@@ -123,13 +131,22 @@ struct Instance {
     return instance_->CreateDevice(surface);
   }
 
+  //! @brief Create a shader.
+  //! @param device Device to use for shader creation.
+  //! @param data Shader compiled binary data.
+  //! @return Shader module.
+  auto CreateShader(const Device& device, const std::vector<uint8_t>& data)
+      -> Shader {
+    return instance_->CreateShader(device, data);
+  }
+
  private:
   template <internal::ConceptInstance Type>
   auto GetNativeType() const -> const Type& {
     return *static_cast<const Type*>(instance_.data());
   }
 
-  entt::basic_poly<internal::InstanceI, 32> instance_{};
+  entt::basic_poly<internal::InstanceI, internal::kInstanceSize> instance_{};
 };
 
 }  // namespace chr::renderer

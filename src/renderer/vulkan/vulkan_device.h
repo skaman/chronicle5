@@ -66,6 +66,8 @@ struct VulkanDevice : DeviceI {
   auto QuerySwapChainSupport(VkPhysicalDevice device) const
       -> SwapChainSupportDetails;
 
+  auto GetNativeDevice() const -> VkDevice { return device_; }
+
  private:
   auto PickPhysicalDevice() -> void;
   auto CreateLogicalDevice() -> void;

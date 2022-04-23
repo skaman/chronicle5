@@ -24,13 +24,6 @@ struct App {
   virtual auto Init() -> void = 0;
   virtual auto Destroy() -> void = 0;
   virtual auto Update() -> void = 0;
-
-  [[nodiscard]] constexpr Platform &GetPlatform() { return platform_; }
-
- private:
-  Platform platform_;
-
-  friend struct chr::platform::internal::GlfwPlatform;
 };
 
 using entt::literals::operator""_hs;

@@ -10,6 +10,8 @@
 namespace chr::renderer {
 
 namespace internal {
+constexpr size_t kDeviceSize = 80;
+
 struct DeviceI : entt::type_list<> {
   template <typename Base>
   struct type : Base {
@@ -54,12 +56,17 @@ struct Device {
  private:
   explicit Device() = default;
 
+  template <internal::ConceptDevice Type>
+  auto GetNativeType() const -> const Type& {
+    return *static_cast<const Type*>(device_.data());
+  }
+
   template <internal::ConceptDevice Type, typename... Args>
   auto Emplace(Args&&... args) -> void {
     device_.emplace<Type>(std::forward<Args>(args)...);
   }
 
-  entt::basic_poly<internal::DeviceI, 32> device_{};
+  entt::basic_poly<internal::DeviceI, internal::kDeviceSize> device_{};
 
   friend struct internal::VulkanInstance;
 };

@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_shader.h"
 #include "vulkan_surface.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
@@ -16,6 +17,8 @@
 #endif
 
 namespace chr::renderer::internal {
+
+static_assert(sizeof(VulkanInstance) <= kInstanceSize);
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -158,6 +161,14 @@ auto VulkanInstance::CreateDevice(const Surface &surface) -> Device {
   Device device{};
   device.Emplace<VulkanDevice>(*this, surface.GetNativeType<VulkanSurface>());
   return device;
+}
+
+auto VulkanInstance::CreateShader(const Device &device,
+                                  const std::vector<uint8_t> &data) const
+    -> Shader {
+  Shader shader{};
+  shader.Emplace<VulkanShader>(device.GetNativeType<VulkanDevice>(), data);
+  return shader;
 }
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
