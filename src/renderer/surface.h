@@ -5,27 +5,12 @@
 #ifndef CHR_RENDERER_SURFACE_H_
 #define CHR_RENDERER_SURFACE_H_
 
-#include "pch.h"
+#include "common.h"
 
 namespace chr::renderer {
 
 namespace internal {
 constexpr size_t kSurfaceSize = 16;
-
-struct SurfaceI : entt::type_list<> {
-  template <typename Base>
-  struct type : Base {
-    auto test() -> void { this->template invoke<0>(*this); }
-  };
-
-  template <typename Type>
-  using impl = entt::value_list<&Type::test>;
-};
-
-template <typename T>
-concept ConceptSurface = std::is_base_of_v<SurfaceI, T>;
-
-struct VulkanInstance;
 }  // namespace internal
 
 struct Instance;
@@ -34,7 +19,7 @@ struct Instance;
 struct SurfaceInfo {
   //! @brief Callback for custom initialization. If this callback is set, the
   //!        internal surface creation is skipped. Instead the callback is
-  //!        called. The behaviur of this callback change based on the backend
+  //!        called. The behavior of this callback change based on the backend
   //!        type.
   std::function<void *(void *)> custom_init{};
 
@@ -44,43 +29,7 @@ struct SurfaceInfo {
 
 //! @brief A surface handle the abstraction that let the system to draw over a
 //!        system native window.
-struct Surface {
-  //! @brief The copy constructor is not supported.
-  Surface(const Surface &) = delete;
-
-  //! @brief Move constructor.
-  Surface(Surface &&other) noexcept : surface_(std::move(other.surface_)) {}
-
-  ~Surface() = default;
-
-  //! @brief The copy assignment operator is not supported.
-  Surface &operator=(const Surface &) = delete;
-
-  //! @brief Move assignment operator.
-  Surface &operator=(Surface &&other) noexcept {
-    std::swap(surface_, other.surface_);
-    return *this;
-  }
-
-  auto test() -> void { surface_->test(); }
-
- private:
-  explicit Surface() = default;
-
-  template <typename Type>
-  auto GetNativeType() const -> const Type & {
-    return *static_cast<const Type *>(surface_.data());
-  }
-
-  template <internal::ConceptSurface Type, typename... Args>
-  auto Emplace(Args &&...args) -> void {
-    surface_.emplace<Type>(std::forward<Args>(args)...);
-  }
-
-  entt::basic_poly<internal::SurfaceI, internal::kSurfaceSize> surface_{};
-
-  friend struct internal::VulkanInstance;
-};
+using Surface = Handle<internal::kSurfaceSize>;
 
 }  // namespace chr::renderer
 

@@ -43,10 +43,25 @@ auto ExampleApp::Init() -> void {
 
   auto& instance = platform.GetInstance();
   const auto& device = platform.GetDevice();
+  const auto& swapchain = platform.GetSwapChain();
+
+  auto swapchain_extent = swapchain.GetExtent();
+  auto swapchain_format = swapchain.GetFormat();
+
   auto fragment_shader =
       instance.CreateShader(device, fragment_shader_compiled.data);
   auto vertex_shader =
       instance.CreateShader(device, vertex_shader_compiled.data);
+
+  auto render_pass =
+      instance.CreateRenderPass(device, {.format = swapchain_format});
+
+  auto pipeline = instance.CreatePipeline(
+      device, render_pass,
+      {.shader_set = {{chr::renderer::ShaderStage::kVertex, vertex_shader},
+                      {chr::renderer::ShaderStage::kFragment, fragment_shader}},
+       .viewport = swapchain_extent,
+       .scissor = swapchain_extent});
 }
 
 auto ExampleApp::Destroy() -> void {

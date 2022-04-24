@@ -8,5 +8,6 @@
 #include <chronicle/common.h>
 
 #include <entt/entt.hpp>
+#include <glm/glm.hpp>
 
 #endif  // CHR_RENDERER_PCH_H_

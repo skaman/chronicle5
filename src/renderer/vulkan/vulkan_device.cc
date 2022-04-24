@@ -14,7 +14,8 @@ static_assert(sizeof(VulkanDevice) <= kDeviceSize);
 
 VulkanDevice::VulkanDevice(const VulkanInstance &instance,
                            const VulkanSurface &surface)
-    : instance_{instance}, surface_{surface} {
+    : instance_{instance.GetNativeInstance()},
+      surface_{surface.GetNativeSurface()} {
   device_extensions_.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 #if defined(CHR_PLATFORM_MACOS)
@@ -34,8 +35,7 @@ VulkanDevice::~VulkanDevice() {
 
 auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
   uint32_t count = 0;
-  if (vkEnumeratePhysicalDevices(instance_.GetNativeInstance(), &count,
-                                 nullptr) != VK_SUCCESS) {
+  if (vkEnumeratePhysicalDevices(instance_, &count, nullptr) != VK_SUCCESS) {
     throw RendererException("Failed to enumerate Vulkan physical devices");
   }
 
@@ -44,8 +44,8 @@ auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
   }
 
   std::vector<VkPhysicalDevice> devices(count);
-  if (vkEnumeratePhysicalDevices(instance_.GetNativeInstance(), &count,
-                                 devices.data()) != VK_SUCCESS) {
+  if (vkEnumeratePhysicalDevices(instance_, &count, devices.data()) !=
+      VK_SUCCESS) {
     throw RendererException("Failed to enumerate Vulkan physical devices");
   }
 
@@ -103,8 +103,7 @@ auto VulkanDevice::FindQueueFamilies(VkPhysicalDevice device) const
     }
 
     VkBool32 present_support = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_.GetNativeSurface(),
-                                         &present_support);
+    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &present_support);
     if (present_support) {
       indices.present_family = i;
     }
@@ -122,27 +121,26 @@ auto VulkanDevice::FindQueueFamilies(VkPhysicalDevice device) const
 auto VulkanDevice::QuerySwapChainSupport(VkPhysicalDevice device) const
     -> SwapChainSupportDetails {
   SwapChainSupportDetails details;
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_.GetNativeSurface(),
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_,
                                             &details.capabilities);
 
   uint32_t format_count;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_.GetNativeSurface(),
-                                       &format_count, nullptr);
+  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &format_count,
+                                       nullptr);
 
   if (format_count != 0) {
     details.formats.resize(format_count);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_.GetNativeSurface(),
-                                         &format_count, details.formats.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &format_count,
+                                         details.formats.data());
   }
 
   uint32_t present_mode_count;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_.GetNativeSurface(),
+  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_,
                                             &present_mode_count, nullptr);
   if (present_mode_count != 0) {
     details.present_modes.resize(present_mode_count);
     vkGetPhysicalDeviceSurfacePresentModesKHR(
-        device, surface_.GetNativeSurface(), &present_mode_count,
-        details.present_modes.data());
+        device, surface_, &present_mode_count, details.present_modes.data());
   }
 
   return details;

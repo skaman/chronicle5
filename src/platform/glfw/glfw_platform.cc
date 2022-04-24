@@ -69,10 +69,10 @@ auto GlfwPlatform::Run() -> int {
 
   int width;
   int height;
-  int rectWidth;
-  int rectHeight;
+  int rect_width;
+  int rect_height;
   glfwGetWindowSize(window_, &width, &height);
-  glfwGetFramebufferSize(window_, &rectWidth, &rectHeight);
+  glfwGetFramebufferSize(window_, &rect_width, &rect_height);
 
   renderer::InstanceInfo instanceInfo{
       .debug_level{renderer::DebugLevel::kWarning},
@@ -90,17 +90,21 @@ auto GlfwPlatform::Run() -> int {
                               instanceInfo};
 
   auto window = window_;
-  renderer::SurfaceInfo surfaceInfo{.custom_init = [window](void *opaque) {
+  renderer::SurfaceInfo surface_info{.custom_init = [window](void *opaque) {
     VkSurfaceKHR vulkan_surface{VK_NULL_HANDLE};
     glfwCreateWindowSurface(static_cast<VkInstance>(opaque), window, nullptr,
                             &vulkan_surface);
     return vulkan_surface;
   }};
 
-  auto surface = instance.CreateSurface(surfaceInfo);
+  auto surface = instance.CreateSurface(surface_info);
   auto device = instance.CreateDevice(surface);
+  auto swapchain = instance.CreateSwapChain(
+      device, surface,
+      {.frame_buffer_width = static_cast<uint32_t>(rect_width),
+       .frame_buffer_height = static_cast<uint32_t>(rect_height)});
 
-  entt::locator<Platform>::emplace(instance, surface, device);
+  entt::locator<Platform>::emplace(instance, surface, device, swapchain);
   auto &platform = entt::locator<Platform>::value();
 
   auto app_instance = entt::resolve("app"_hs).construct();

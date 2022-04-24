@@ -9,8 +9,11 @@
 
 #include "device.h"
 #include "pch.h"
+#include "pipeline.h"
+#include "renderpass.h"
 #include "shader.h"
 #include "surface.h"
+#include "swapchain.h"
 
 namespace chr::renderer {
 
@@ -23,18 +26,36 @@ struct InstanceI : entt::type_list<> {
     auto CreateSurface(const SurfaceInfo& info) -> Surface {
       return this->template invoke<0>(*this, info);
     }
+
     auto CreateDevice(const Surface& surface) -> Device {
       return this->template invoke<1>(*this, surface);
     }
+
     auto CreateShader(const Device& device, const std::vector<uint8_t>& data)
         -> Shader {
       return this->template invoke<2>(*this, device, data);
+    }
+
+    auto CreateSwapChain(const Device& device, const Surface& surface,
+                         const SwapChainInfo& info) const -> SwapChain {
+      return this->template invoke<3>(*this, device, surface, info);
+    }
+
+    auto CreatePipeline(const Device& device, const RenderPass& render_pass,
+                        const PipelineInfo& info) const -> Pipeline {
+      return this->template invoke<4>(*this, device, render_pass, info);
+    }
+
+    auto CreateRenderPass(const Device& device,
+                          const RenderPassInfo& info) const -> RenderPass {
+      return this->template invoke<5>(*this, device, info);
     }
   };
 
   template <typename Type>
   using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice,
-                                &Type::CreateShader>;
+                                &Type::CreateShader, &Type::CreateSwapChain,
+                                &Type::CreatePipeline, &Type::CreateRenderPass>;
 };
 
 template <typename T>
@@ -140,12 +161,27 @@ struct Instance {
     return instance_->CreateShader(device, data);
   }
 
- private:
-  template <internal::ConceptInstance Type>
-  auto GetNativeType() const -> const Type& {
-    return *static_cast<const Type*>(instance_.data());
+  //! @brief Create the swapchain.
+  //! @param device Device to use for swapchain creation.
+  //! @param surface Surface to use for swapchain creation.
+  //! @param info Informations used to create the swapchain.
+  //! @return The swapchain.
+  auto CreateSwapChain(const Device& device, const Surface& surface,
+                       const SwapChainInfo& info) const -> SwapChain {
+    return instance_->CreateSwapChain(device, surface, info);
   }
 
+  auto CreatePipeline(const Device& device, const RenderPass& render_pass,
+                      const PipelineInfo& info) const -> Pipeline {
+    return instance_->CreatePipeline(device, render_pass, info);
+  }
+
+  auto CreateRenderPass(const Device& device, const RenderPassInfo& info) const
+      -> RenderPass {
+    return instance_->CreateRenderPass(device, info);
+  }
+
+ private:
   entt::basic_poly<internal::InstanceI, internal::kInstanceSize> instance_{};
 };
 

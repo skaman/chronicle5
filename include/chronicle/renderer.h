@@ -10,5 +10,7 @@
 #include "../../src/renderer/device.h"
 #include "../../src/renderer/shader.h"
 #include "../../src/renderer/shader_compiler.h"
+#include "../../src/renderer/swapchain.h"
+#include "../../src/renderer/pipeline.h"
 
 #endif  // CHR_RENDERER_H_

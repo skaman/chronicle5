@@ -22,8 +22,11 @@ concept ConceptEvent = std::is_base_of_v<Event, T>;
 
 struct Platform {
   explicit Platform(renderer::Instance &instance, renderer::Surface &surface,
-                    renderer::Device &device)
-      : instance_{instance}, surface_{surface}, device_{device} {}
+                    renderer::Device &device, renderer::SwapChain &swapchain)
+      : instance_{instance},
+        surface_{surface},
+        device_{device},
+        swapchain_{swapchain} {}
 
   template <ConceptEvent TEvent, auto Candidate, typename Type>
   auto Connect(Type &&value_or_instance) -> entt::connection {
@@ -48,10 +51,15 @@ struct Platform {
 
   [[nodiscard]] auto GetDevice() const -> renderer::Device & { return device_; }
 
+  [[nodiscard]] auto GetSwapChain() const -> renderer::SwapChain & {
+    return swapchain_;
+  }
+
  private:
   renderer::Instance &instance_;
   renderer::Surface &surface_;
   renderer::Device &device_;
+  renderer::SwapChain &swapchain_;
 
   entt::dispatcher app_dispatcher_{};
   entt::dispatcher platform_dispatcher_{};

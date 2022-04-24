@@ -13,21 +13,21 @@ static_assert(sizeof(VulkanShader) <= kShaderSize);
 
 VulkanShader::VulkanShader(const VulkanDevice &device,
                            const std::vector<uint8_t> &data)
-    : device_(device) {
+    : device_(device.GetNativeDevice()) {
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = data.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(data.data());
-  if (vkCreateShaderModule(device_.GetNativeDevice(), &createInfo, nullptr,
-                           &shader_) !=
+  if (vkCreateShaderModule(device_, &createInfo, nullptr, &shader_) !=
       VK_SUCCESS) {
+    device_ = VK_NULL_HANDLE;
     throw RendererException("Failed to create shader module");
   }
 }
 
 VulkanShader::~VulkanShader() {
   if (shader_ != VK_NULL_HANDLE) {
-    vkDestroyShaderModule(device_.GetNativeDevice(), shader_, nullptr);
+    vkDestroyShaderModule(device_, shader_, nullptr);
   }
 }
 

@@ -1,8 +1,8 @@
 add_library(chronicle-common
-    
     "debug.h"
     "log.cc"
     "log.h"
+    "utils.h"
 )
 
 add_library(chronicle::common ALIAS chronicle-common)

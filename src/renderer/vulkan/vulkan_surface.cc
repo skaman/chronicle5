@@ -20,10 +20,9 @@ static_assert(sizeof(VulkanSurface) <= kSurfaceSize);
 
 VulkanSurface::VulkanSurface(const VulkanInstance &instance,
                              const SurfaceInfo &info)
-    : instance_(instance) {
+    : instance_(instance.GetNativeInstance()) {
   if (info.custom_init) {
-    surface_ = static_cast<VkSurfaceKHR>(
-        info.custom_init(instance_.GetNativeInstance()));
+    surface_ = static_cast<VkSurfaceKHR>(info.custom_init(instance_));
     if (surface_ == VK_NULL_HANDLE) {
       throw RendererException("Failed to create window surface");
     }
@@ -35,16 +34,18 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
   createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   createInfo.hwnd = static_cast<HWND>(info.hwnd);
   createInfo.hinstance = GetModuleHandle(nullptr);
-  if (vkCreateWin32SurfaceKHR(instance_.GetNativeInstance(), &createInfo,
-                              nullptr, &surface_) != VK_SUCCESS) {
+  if (vkCreateWin32SurfaceKHR(instance_, &createInfo, nullptr, &surface_) !=
+      VK_SUCCESS) {
+    surface_ = VK_NULL_HANDLE;
     throw RendererException("Failed to create window surface");
   }
 #elif defined(CHR_PLATFORM_MACOS)
   VkMacOSSurfaceCreateInfoMVK createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
   createInfo.pView = surfaceInfo.hwnd;
-  if (vkCreateMacOSSurfaceMVK(instance_.native_instance(), &createInfo, nullptr,
-                              &surface_) != VK_SUCCESS) {
+  if (vkCreateMacOSSurfaceMVK(instance_, &createInfo, nullptr, &surface_) !=
+      VK_SUCCESS) {
+    surface_ = VK_NULL_HANDLE;
     throw RendererException("Failed to create window surface");
   }
 #else
@@ -54,7 +55,7 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
 
 VulkanSurface::~VulkanSurface() {
   if (surface_ != VK_NULL_HANDLE) {
-    vkDestroySurfaceKHR(instance_.GetNativeInstance(), surface_, nullptr);
+    vkDestroySurfaceKHR(instance_, surface_, nullptr);
   }
 }
 

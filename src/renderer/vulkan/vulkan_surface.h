@@ -13,7 +13,7 @@ namespace chr::renderer::internal {
 
 struct VulkanInstance;
 
-struct VulkanSurface : SurfaceI {
+struct VulkanSurface {
   explicit VulkanSurface(const VulkanInstance &instance,
                          const SurfaceInfo &info);
 
@@ -21,6 +21,7 @@ struct VulkanSurface : SurfaceI {
 
   VulkanSurface(VulkanSurface &&other) noexcept
       : instance_{other.instance_}, surface_{other.surface_} {
+    other.instance_ = VK_NULL_HANDLE;
     other.surface_ = VK_NULL_HANDLE;
   }
 
@@ -29,13 +30,10 @@ struct VulkanSurface : SurfaceI {
   VulkanSurface &operator=(const VulkanSurface &) = delete;
   VulkanSurface &operator=(VulkanSurface &&other) = delete;
 
-  auto test() -> void {}
-
   auto GetNativeSurface() const -> VkSurfaceKHR { return surface_; }
 
  private:
-  const VulkanInstance &instance_;
-
+  VkInstance instance_{VK_NULL_HANDLE};
   VkSurfaceKHR surface_{VK_NULL_HANDLE};
 };
 

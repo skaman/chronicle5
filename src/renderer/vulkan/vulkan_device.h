@@ -29,19 +29,21 @@ struct SwapChainSupportDetails {
 struct VulkanInstance;
 struct VulkanSurface;
 
-struct VulkanDevice : DeviceI {
+struct VulkanDevice {
   explicit VulkanDevice(const VulkanInstance &instance,
                         const VulkanSurface &surface);
 
   VulkanDevice(const VulkanDevice &) = delete;
   VulkanDevice(VulkanDevice &&other) noexcept
-      : instance_{other.instance_},
-        surface_{other.surface_},
+      : instance_{std::move(other.instance_)},
+        surface_{std::move(other.surface_)},
         physical_device_{std::move(other.physical_device_)},
         device_{std::move(other.device_)},
         graphics_queue_{std::move(other.graphics_queue_)},
         present_queue_{std::move(other.present_queue_)},
         device_extensions_{std::move(other.device_extensions_)} {
+    other.instance_ = VK_NULL_HANDLE;
+    other.surface_ = VK_NULL_HANDLE;
     other.physical_device_ = VK_NULL_HANDLE;
     other.device_ = VK_NULL_HANDLE;
     other.graphics_queue_ = VK_NULL_HANDLE;
@@ -54,9 +56,10 @@ struct VulkanDevice : DeviceI {
   VulkanDevice &operator=(const VulkanDevice &) = delete;
   VulkanDevice &operator=(VulkanDevice &&other) = delete;
 
-  auto test() -> void {}
-
   auto GetPhysicalDevices() const -> std::vector<VkPhysicalDevice>;
+  auto GetPhysicalDevice() const -> VkPhysicalDevice {
+    return physical_device_;
+  }
   auto GetQueueFamilies(VkPhysicalDevice device) const
       -> std::vector<VkQueueFamilyProperties>;
   auto GetExtensions(VkPhysicalDevice device) const
@@ -77,9 +80,8 @@ struct VulkanDevice : DeviceI {
 
   auto IsDeviceSuitable(VkPhysicalDevice device) -> bool;
 
-  const VulkanInstance &instance_;
-  const VulkanSurface &surface_;
-
+  VkInstance instance_{VK_NULL_HANDLE};
+  VkSurfaceKHR surface_{VK_NULL_HANDLE};
   VkPhysicalDevice physical_device_{VK_NULL_HANDLE};
   VkDevice device_{VK_NULL_HANDLE};
   VkQueue graphics_queue_{VK_NULL_HANDLE};

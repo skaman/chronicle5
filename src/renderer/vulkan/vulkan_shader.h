@@ -13,7 +13,7 @@ namespace chr::renderer::internal {
 
 struct VulkanDevice;
 
-struct VulkanShader : ShaderI {
+struct VulkanShader {
   explicit VulkanShader(const VulkanDevice &device,
                         const std::vector<uint8_t> &data);
 
@@ -21,6 +21,7 @@ struct VulkanShader : ShaderI {
 
   VulkanShader(VulkanShader &&other) noexcept
       : device_{other.device_}, shader_{other.shader_} {
+    other.device_ = VK_NULL_HANDLE;
     other.shader_ = VK_NULL_HANDLE;
   }
 
@@ -29,13 +30,10 @@ struct VulkanShader : ShaderI {
   VulkanShader &operator=(const VulkanShader &) = delete;
   VulkanShader &operator=(VulkanShader &&other) = delete;
 
-  auto test() -> void {}
-
   auto GetNativeShader() const -> VkShaderModule { return shader_; }
 
  private:
-  const VulkanDevice &device_;
-
+  VkDevice device_{VK_NULL_HANDLE};
   VkShaderModule shader_{VK_NULL_HANDLE};
 };
 
