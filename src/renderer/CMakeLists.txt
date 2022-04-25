@@ -3,7 +3,7 @@ find_package(Vulkan REQUIRED)
 add_library(chronicle-renderer
     "common.h"
     "device.h"
-    "format.h"
+    "enums.h"
     "instance.cc"
     "instance.h"
     "pch.h"

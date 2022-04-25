@@ -62,14 +62,6 @@ template <typename T>
 concept ConceptInstance = std::is_base_of_v<InstanceI, T>;
 }  // namespace internal
 
-//! @brief Debug level for renderer driver.
-enum class DebugLevel {
-  kNone,     //!< Log nothing.
-  kVerbose,  //!< Verbose logging.
-  kWarning,  //!< Log only warning and errors.
-  kError     //!< Log only errors.
-};
-
 //! @brief Semantic version.
 struct Version {
   uint16_t major;  //!< Major.
@@ -82,11 +74,6 @@ struct Version {
   //! @param patch Patch.
   constexpr Version(uint16_t major, uint16_t minor, uint16_t patch)
       : major{major}, minor{minor}, patch{patch} {}
-};
-
-//! @brief Renderer backend type
-enum class BackendType {
-  kVulkan  //!< Vulkan renderer.
 };
 
 //! @brief Informations used to create a new renderer instance.

@@ -2,12 +2,35 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#ifndef CHR_RENDERER_FORMAT_H_
-#define CHR_RENDERER_FORMAT_H_
+#ifndef CHR_RENDERER_ENUMS_H_
+#define CHR_RENDERER_ENUMS_H_
 
 #include "common.h"
 
 namespace chr::renderer {
+
+//! @brief Debug level for renderer driver.
+enum class DebugLevel {
+  kNone,     //!< Log nothing.
+  kVerbose,  //!< Verbose logging.
+  kWarning,  //!< Log only warning and errors.
+  kError     //!< Log only errors.
+};
+
+//! @brief Renderer backend type.
+enum class BackendType {
+  kVulkan  //!< Vulkan renderer.
+};
+
+//! @brief Shader stages for commands and structures.
+enum class ShaderStage {
+  kVertex,    //!< Vertex stage.
+  kFragment,  //!< Fragment stage.
+  kCompute,   //!< Compute stage.
+
+  kAllGraphics,  //!< All graphics stages.
+  kAll           //!< All stages.
+};
 
 //! @brief Image formats that can be passed to, and may be returned from
 //!        renderer commands.
@@ -698,4 +721,4 @@ enum class Format {
 
 }  // namespace chr::renderer
 
-#endif  // CHR_RENDERER_SHADER_H_
+#endif  // CHR_RENDERER_ENUMS_H_

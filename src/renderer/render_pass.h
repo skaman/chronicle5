@@ -6,7 +6,6 @@
 #define CHR_RENDERER_RENDER_PASS_H_
 
 #include "common.h"
-#include "format.h"
 
 namespace chr::renderer {
 

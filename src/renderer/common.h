@@ -6,6 +6,7 @@
 #define CHR_RENDERER_COMMON_H_
 
 #include "pch.h"
+#include "enums.h"
 
 //! @brief Renderer API namespace
 namespace chr::renderer {

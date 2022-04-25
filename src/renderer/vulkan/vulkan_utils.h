@@ -5,7 +5,7 @@
 #ifndef CHR_RENDERER_VULKAN_VULKAN_UTILS_H_
 #define CHR_RENDERER_VULKAN_VULKAN_UTILS_H_
 
-#include "format.h"
+#include "enums.h"
 #include "pch.h"
 #include "vulkan_pch.h"
 
@@ -13,6 +13,7 @@ namespace chr::renderer::internal {
 
 auto GetVulkanFormat(Format format) -> VkFormat;
 auto GetLocalFormat(VkFormat format) -> Format;
+auto GetShaderStageFlagBits(ShaderStage stage) -> VkShaderStageFlagBits;
 
 }  // namespace chr::renderer::internal
 

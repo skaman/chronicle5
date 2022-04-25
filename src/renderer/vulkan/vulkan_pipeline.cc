@@ -6,33 +6,13 @@
 
 #include "common.h"
 #include "vulkan_device.h"
-#include "vulkan_shader.h"
 #include "vulkan_render_pass.h"
+#include "vulkan_shader.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
 static_assert(sizeof(VulkanPipeline) <= kPipelineSize);
-
-static VkShaderStageFlagBits GetShaderStageFlagBits(ShaderStage stage) {
-  switch (stage) {
-    case ShaderStage::kVertex:
-      return VK_SHADER_STAGE_VERTEX_BIT;
-    case ShaderStage::kFragment:
-      return VK_SHADER_STAGE_FRAGMENT_BIT;
-    case ShaderStage::kCompute:
-      return VK_SHADER_STAGE_COMPUTE_BIT;
-    case ShaderStage::kAllGraphics:
-      return VK_SHADER_STAGE_ALL_GRAPHICS;
-    case ShaderStage::kAll:
-      return VK_SHADER_STAGE_ALL;
-    default:
-      break;
-  }
-
-  debug::Assert(false, "Unsupported shader stage");
-
-  return static_cast<VkShaderStageFlagBits>(0);
-}
 
 VulkanPipeline::VulkanPipeline(const VulkanDevice &device,
                                const VulkanRenderPass &render_pass,

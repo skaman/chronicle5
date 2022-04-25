@@ -190,4 +190,25 @@ auto GetLocalFormat(VkFormat format) -> Format {
   return kVulkanToLocalFormatMap.at(format);
 }
 
+auto GetShaderStageFlagBits(ShaderStage stage) -> VkShaderStageFlagBits {
+  switch (stage) {
+    case ShaderStage::kVertex:
+      return VK_SHADER_STAGE_VERTEX_BIT;
+    case ShaderStage::kFragment:
+      return VK_SHADER_STAGE_FRAGMENT_BIT;
+    case ShaderStage::kCompute:
+      return VK_SHADER_STAGE_COMPUTE_BIT;
+    case ShaderStage::kAllGraphics:
+      return VK_SHADER_STAGE_ALL_GRAPHICS;
+    case ShaderStage::kAll:
+      return VK_SHADER_STAGE_ALL;
+    default:
+      break;
+  }
+
+  debug::Assert(false, "Unsupported shader stage");
+
+  return static_cast<VkShaderStageFlagBits>(0);
+}
+
 }  // namespace chr::renderer::internal
