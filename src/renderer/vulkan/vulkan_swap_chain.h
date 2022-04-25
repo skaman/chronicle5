@@ -25,15 +25,15 @@ struct VulkanSwapChain : SwapChainI {
       : device_{other.device_},
         surface_{other.surface_},
         swapchain_{other.swapchain_},
-        swapchain_images_{other.swapchain_images_},
-        swapchain_image_views_{other.swapchain_image_views_},
+        images_{other.images_},
+        image_views_{std::move(other.image_views_)},
         extent_{other.extent_},
         format_{other.format_} {
     other.device_ = VK_NULL_HANDLE;
     other.surface_ = VK_NULL_HANDLE;
     other.swapchain_ = VK_NULL_HANDLE;
-    other.swapchain_images_.clear();
-    other.swapchain_image_views_.clear();
+    other.images_.clear();
+    other.image_views_.clear();
     other.extent_ = {};
     other.format_ = Format::kUndefined;
   }
@@ -48,6 +48,13 @@ struct VulkanSwapChain : SwapChainI {
   auto GetExtent() const -> glm::u32vec2 { return extent_; }
   auto GetFormat() const -> Format { return format_; }
 
+  auto GetImageViewCount() const -> uint32_t {
+    return static_cast<uint32_t>(image_views_.size());
+  }
+  auto GetImageView(uint32_t index) const -> const ImageView & {
+    return image_views_.at(index);
+  }
+
  private:
   static auto ChooseSwapSurfaceFormat(
       const std::vector<VkSurfaceFormatKHR> &available_formats)
@@ -60,14 +67,14 @@ struct VulkanSwapChain : SwapChainI {
                                uint32_t frame_buffer_height) -> VkExtent2D;
 
   auto CreateSwapChainImages(uint32_t image_count) -> void;
-  auto CreateImageViews(uint32_t image_count, VkFormat swap_chain_image_format)
-      -> void;
+  auto CreateImageViews(const VulkanDevice &device, uint32_t image_count,
+                        VkFormat image_format) -> void;
 
   VkDevice device_{VK_NULL_HANDLE};
   VkSurfaceKHR surface_{VK_NULL_HANDLE};
   VkSwapchainKHR swapchain_{VK_NULL_HANDLE};
-  std::vector<VkImage> swapchain_images_{};
-  std::vector<VkImageView> swapchain_image_views_{};
+  std::vector<VkImage> images_{};
+  std::vector<ImageView> image_views_{};
   glm::u32vec2 extent_{};
   Format format_{Format::kUndefined};
 };

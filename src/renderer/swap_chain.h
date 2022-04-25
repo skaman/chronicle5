@@ -6,6 +6,7 @@
 #define CHR_RENDERER_SWAP_CHAIN_H_
 
 #include "common.h"
+#include "image_view.h"
 
 namespace chr::renderer {
 
@@ -18,13 +19,19 @@ struct SwapChainI : entt::type_list<> {
       return this->template invoke<0>(*this);
     }
 
-    auto GetFormat() const -> Format {
-      return this->template invoke<1>(*this);
+    auto GetFormat() const -> Format { return this->template invoke<1>(*this); }
+
+    auto GetImageViewCount() const -> uint32_t {
+      return this->template invoke<2>(*this);
+    }
+    auto GetImageView(uint32_t index) const -> const ImageView& {
+      return this->template invoke<3>(*this, index);
     }
   };
 
   template <typename Type>
-  using impl = entt::value_list<&Type::GetExtent, &Type::GetFormat>;
+  using impl = entt::value_list<&Type::GetExtent, &Type::GetFormat,
+                                &Type::GetImageViewCount, &Type::GetImageView>;
 };
 
 template <typename T>
@@ -59,6 +66,13 @@ struct SwapChain {
 
   auto GetExtent() const -> glm::u32vec2 { return swapchain_->GetExtent(); }
   auto GetFormat() const -> Format { return swapchain_->GetFormat(); }
+
+  auto GetImageViewCount() const -> uint32_t {
+    return swapchain_->GetImageViewCount();
+  }
+  auto GetImageView(uint32_t index) const -> const ImageView& {
+    return swapchain_->GetImageView(index);
+  }
 
  private:
   explicit SwapChain() = default;

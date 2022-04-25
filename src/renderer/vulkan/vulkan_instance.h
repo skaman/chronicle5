@@ -40,6 +40,8 @@ struct VulkanInstance : InstanceI {
                       const PipelineInfo &info) const -> Pipeline;
   auto CreateRenderPass(const Device &device, const RenderPassInfo &info) const
       -> RenderPass;
+  auto CreateFrameBuffer(const Device &device, const RenderPass &render_pass,
+                         const FrameBufferInfo &info) const -> FrameBuffer;
 
   auto GetLayers() const -> std::vector<VkLayerProperties>;
   auto GetExtensions() const -> std::vector<VkExtensionProperties>;

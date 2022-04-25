@@ -19,6 +19,8 @@ struct RendererException : public std::runtime_error {
 namespace internal {
 struct VulkanInstance;
 struct VulkanPipeline;
+struct VulkanSwapChain;
+struct VulkanFrameBuffer;
 }  // namespace internal
 
 template<size_t Size>
@@ -57,6 +59,8 @@ struct Handle {
 
   friend struct internal::VulkanInstance;
   friend struct internal::VulkanPipeline;
+  friend struct internal::VulkanSwapChain;
+  friend struct internal::VulkanFrameBuffer;
 };
 
 }  // namespace chr::renderer

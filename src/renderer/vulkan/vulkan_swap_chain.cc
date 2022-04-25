@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_image_view.h"
 #include "vulkan_surface.h"
 #include "vulkan_utils.h"
 
@@ -71,7 +72,7 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
 
   try {
     CreateSwapChainImages(image_count);
-    CreateImageViews(image_count, surface_format.format);
+    CreateImageViews(device, image_count, surface_format.format);
   } catch (std::exception) {
     vkDestroySwapchainKHR(device_, swapchain_, nullptr);
     swapchain_ = VK_NULL_HANDLE;
@@ -83,10 +84,6 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
 }
 
 VulkanSwapChain::~VulkanSwapChain() {
-  for (auto swapchain_image_view : swapchain_image_views_) {
-    vkDestroyImageView(device_, swapchain_image_view, nullptr);
-  }
-
   if (swapchain_ != VK_NULL_HANDLE) {
     vkDestroySwapchainKHR(device_, swapchain_, nullptr);
   }
@@ -146,45 +143,55 @@ auto VulkanSwapChain::CreateSwapChainImages(uint32_t image_count) -> void {
     throw RendererException("Failed to create swap chain images");
   }
 
-  swapchain_images_.resize(image_count);
+  images_.resize(image_count);
 
   if (vkGetSwapchainImagesKHR(device_, swapchain_, &image_count,
-                              swapchain_images_.data()) != VK_SUCCESS) {
-    swapchain_images_.clear();
+                              images_.data()) != VK_SUCCESS) {
+    images_.clear();
     throw RendererException("Failed to create swap chain images");
   }
 }
 
-auto VulkanSwapChain::CreateImageViews(uint32_t image_count,
-                                       VkFormat swap_chain_image_format)
-    -> void {
-  swapchain_image_views_.resize(image_count);
-
+auto VulkanSwapChain::CreateImageViews(const VulkanDevice &device,
+                                       uint32_t image_count,
+                                       VkFormat image_format) -> void {
+  image_views_.reserve(image_count);
   for (auto i = 0; i < image_count; i++) {
-    VkImageViewCreateInfo create_info{};
-    create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    create_info.image = swapchain_images_[i];
-    create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    create_info.format = swap_chain_image_format;
-    create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-    create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    create_info.subresourceRange.baseMipLevel = 0;
-    create_info.subresourceRange.levelCount = 1;
-    create_info.subresourceRange.baseArrayLayer = 0;
-    create_info.subresourceRange.layerCount = 1;
-
-    if (vkCreateImageView(device_, &create_info, nullptr,
-                          &swapchain_image_views_[i]) != VK_SUCCESS) {
-      for (auto j = 0; j < i - 1; j++) {
-        vkDestroyImageView(device_, swapchain_image_views_[j], nullptr);
-      }
-      swapchain_image_views_.clear();
-      throw RendererException("Failed to create image views");
+    try {
+      ImageView image_view{};
+      image_view.Emplace<VulkanImageView>(device, image_format, images_.at(i));
+      image_views_.push_back(std::move(image_view));
+    } catch (std::exception) {
+      image_views_.clear();
+      throw;
     }
   }
+
+  // for (auto i = 0; i < image_count; i++) {
+  //   VkImageViewCreateInfo create_info{};
+  //   create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  //   create_info.image = swapchain_images_[i];
+  //   create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  //   create_info.format = swap_chain_image_format;
+  //   create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+  //   create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  //   create_info.subresourceRange.baseMipLevel = 0;
+  //   create_info.subresourceRange.levelCount = 1;
+  //   create_info.subresourceRange.baseArrayLayer = 0;
+  //   create_info.subresourceRange.layerCount = 1;
+  //
+  //   if (vkCreateImageView(device_, &create_info, nullptr,
+  //                         &swapchain_image_views_[i]) != VK_SUCCESS) {
+  //     for (auto j = 0; j < i - 1; j++) {
+  //       vkDestroyImageView(device_, swapchain_image_views_[j], nullptr);
+  //     }
+  //     swapchain_image_views_.clear();
+  //     throw RendererException("Failed to create image views");
+  //   }
+  // }
 }
 
 }  // namespace chr::renderer::internal

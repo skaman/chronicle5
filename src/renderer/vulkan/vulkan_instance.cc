@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_frame_buffer.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_render_pass.h"
 #include "vulkan_shader.h"
@@ -200,6 +201,16 @@ auto VulkanInstance::CreateRenderPass(const Device &device,
   RenderPass render_pass{};
   render_pass.Emplace<VulkanRenderPass>(device.Cast<VulkanDevice>(), info);
   return render_pass;
+}
+
+auto VulkanInstance::CreateFrameBuffer(const Device &device,
+                                       const RenderPass &render_pass,
+                                       const FrameBufferInfo &info) const
+    -> FrameBuffer {
+  FrameBuffer frame_buffer{};
+  frame_buffer.Emplace<VulkanFrameBuffer>(
+      device.Cast<VulkanDevice>(), render_pass.Cast<VulkanRenderPass>(), info);
+  return frame_buffer;
 }
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {

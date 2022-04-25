@@ -8,6 +8,7 @@
 #define CHR_RENDERER_INSTANCE_H_
 
 #include "device.h"
+#include "frame_buffer.h"
 #include "pch.h"
 #include "pipeline.h"
 #include "render_pass.h"
@@ -50,12 +51,18 @@ struct InstanceI : entt::type_list<> {
                           const RenderPassInfo& info) const -> RenderPass {
       return this->template invoke<5>(*this, device, info);
     }
+
+    auto CreateFrameBuffer(const Device& device, const RenderPass& render_pass,
+                           const FrameBufferInfo& info) const -> FrameBuffer {
+      return this->template invoke<6>(*this, device, render_pass, info);
+    }
   };
 
   template <typename Type>
   using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice,
                                 &Type::CreateShader, &Type::CreateSwapChain,
-                                &Type::CreatePipeline, &Type::CreateRenderPass>;
+                                &Type::CreatePipeline, &Type::CreateRenderPass,
+                                &Type::CreateFrameBuffer>;
 };
 
 template <typename T>
@@ -166,6 +173,11 @@ struct Instance {
   auto CreateRenderPass(const Device& device, const RenderPassInfo& info) const
       -> RenderPass {
     return instance_->CreateRenderPass(device, info);
+  }
+
+  auto CreateFrameBuffer(const Device& device, const RenderPass& render_pass,
+                         const FrameBufferInfo& info) const -> FrameBuffer {
+    return instance_->CreateFrameBuffer(device, render_pass, info);
   }
 
  private:

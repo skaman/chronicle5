@@ -6,6 +6,8 @@
 #define CHR_RENDERER_H_
 
 #include "../../src/renderer/device.h"
+#include "../../src/renderer/frame_buffer.h"
+#include "../../src/renderer/image_view.h"
 #include "../../src/renderer/instance.h"
 #include "../../src/renderer/pipeline.h"
 #include "../../src/renderer/render_pass.h"

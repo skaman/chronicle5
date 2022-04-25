@@ -43,10 +43,10 @@ auto ExampleApp::Init() -> void {
 
   auto& instance = platform.GetInstance();
   const auto& device = platform.GetDevice();
-  const auto& swapchain = platform.GetSwapChain();
+  const auto& swap_chain = platform.GetSwapChain();
 
-  auto swapchain_extent = swapchain.GetExtent();
-  auto swapchain_format = swapchain.GetFormat();
+  auto swap_chain_extent = swap_chain.GetExtent();
+  auto swap_chain_format = swap_chain.GetFormat();
 
   auto fragment_shader =
       instance.CreateShader(device, fragment_shader_compiled.data);
@@ -54,14 +54,24 @@ auto ExampleApp::Init() -> void {
       instance.CreateShader(device, vertex_shader_compiled.data);
 
   auto render_pass =
-      instance.CreateRenderPass(device, {.format = swapchain_format});
+      instance.CreateRenderPass(device, {.format = swap_chain_format});
+
+  auto swap_chain_image_view_count = swap_chain.GetImageViewCount();
+  std::vector<chr::renderer::FrameBuffer> swap_chain_frame_buffers{};
+  swap_chain_frame_buffers.reserve(swap_chain_image_view_count);
+  for (auto i = 0; i < swap_chain_image_view_count; i++) {
+    auto frame_buffer =
+        instance.CreateFrameBuffer(device, render_pass,
+                                   {.attachments = {swap_chain.GetImageView(i)},
+                                    .extent = swap_chain_extent});
+  }
 
   auto pipeline = instance.CreatePipeline(
       device, render_pass,
       {.shader_set = {{chr::renderer::ShaderStage::kVertex, vertex_shader},
                       {chr::renderer::ShaderStage::kFragment, fragment_shader}},
-       .viewport = swapchain_extent,
-       .scissor = swapchain_extent});
+       .viewport = swap_chain_extent,
+       .scissor = swap_chain_extent});
 }
 
 auto ExampleApp::Destroy() -> void {
