@@ -99,10 +99,9 @@ auto GlfwPlatform::Run() -> int {
 
   auto surface = instance.CreateSurface(surface_info);
   auto device = instance.CreateDevice(surface);
-  auto swapchain = instance.CreateSwapChain(
-      device, surface,
-      {.frame_buffer_width = static_cast<uint32_t>(rect_width),
-       .frame_buffer_height = static_cast<uint32_t>(rect_height)});
+  auto swapchain = device.CreateSwapChain(
+      surface, {.frame_buffer_width = static_cast<uint32_t>(rect_width),
+                .frame_buffer_height = static_cast<uint32_t>(rect_height)});
 
   entt::locator<Platform>::emplace(instance, surface, device, swapchain);
   auto &platform = entt::locator<Platform>::value();

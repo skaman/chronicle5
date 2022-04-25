@@ -21,6 +21,8 @@ struct VulkanInstance;
 struct VulkanPipeline;
 struct VulkanSwapChain;
 struct VulkanFrameBuffer;
+struct VulkanCommandBuffer;
+struct VulkanDevice;
 }  // namespace internal
 
 template<size_t Size>
@@ -61,6 +63,8 @@ struct Handle {
   friend struct internal::VulkanPipeline;
   friend struct internal::VulkanSwapChain;
   friend struct internal::VulkanFrameBuffer;
+  friend struct internal::VulkanCommandBuffer;
+  friend struct internal::VulkanDevice;
 };
 
 }  // namespace chr::renderer

@@ -6,12 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
-#include "vulkan_frame_buffer.h"
-#include "vulkan_pipeline.h"
-#include "vulkan_render_pass.h"
-#include "vulkan_shader.h"
 #include "vulkan_surface.h"
-#include "vulkan_swap_chain.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -165,52 +160,6 @@ auto VulkanInstance::CreateDevice(const Surface &surface) -> Device {
   Device device{};
   device.Emplace<VulkanDevice>(*this, surface.Cast<VulkanSurface>());
   return device;
-}
-
-auto VulkanInstance::CreateShader(const Device &device,
-                                  const std::vector<uint8_t> &data) const
-    -> Shader {
-  Shader shader{};
-  shader.Emplace<VulkanShader>(device.Cast<VulkanDevice>(), data);
-  return shader;
-}
-
-auto VulkanInstance::CreateSwapChain(const Device &device,
-                                     const Surface &surface,
-                                     const SwapChainInfo &info) const
-    -> SwapChain {
-  SwapChain swapchain{};
-  swapchain.Emplace<VulkanSwapChain>(device.Cast<VulkanDevice>(),
-                                     surface.Cast<VulkanSurface>(), info);
-  return swapchain;
-}
-
-auto VulkanInstance::CreatePipeline(const Device &device,
-                                    const RenderPass &render_pass,
-                                    const PipelineInfo &info) const
-    -> Pipeline {
-  Pipeline pipeline{};
-  pipeline.Emplace<VulkanPipeline>(device.Cast<VulkanDevice>(),
-                                   render_pass.Cast<VulkanRenderPass>(), info);
-  return pipeline;
-}
-
-auto VulkanInstance::CreateRenderPass(const Device &device,
-                                      const RenderPassInfo &info) const
-    -> RenderPass {
-  RenderPass render_pass{};
-  render_pass.Emplace<VulkanRenderPass>(device.Cast<VulkanDevice>(), info);
-  return render_pass;
-}
-
-auto VulkanInstance::CreateFrameBuffer(const Device &device,
-                                       const RenderPass &render_pass,
-                                       const FrameBufferInfo &info) const
-    -> FrameBuffer {
-  FrameBuffer frame_buffer{};
-  frame_buffer.Emplace<VulkanFrameBuffer>(
-      device.Cast<VulkanDevice>(), render_pass.Cast<VulkanRenderPass>(), info);
-  return frame_buffer;
 }
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {

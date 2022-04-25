@@ -5,8 +5,15 @@
 #include "vulkan_device.h"
 
 #include "common.h"
+#include "vulkan_command_buffer.h"
+#include "vulkan_command_pool.h"
+#include "vulkan_frame_buffer.h"
 #include "vulkan_instance.h"
+#include "vulkan_pipeline.h"
+#include "vulkan_render_pass.h"
+#include "vulkan_shader.h"
 #include "vulkan_surface.h"
+#include "vulkan_swap_chain.h"
 
 namespace chr::renderer::internal {
 
@@ -50,6 +57,59 @@ auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
   }
 
   return devices;
+}
+
+auto VulkanDevice::CreateShader(const std::vector<uint8_t> &data) const
+    -> Shader {
+  Shader shader{};
+  shader.Emplace<VulkanShader>(*this, data);
+  return shader;
+}
+
+auto VulkanDevice::CreateSwapChain(const Surface &surface,
+                                   const SwapChainInfo &info) const
+    -> SwapChain {
+  SwapChain swapchain{};
+  swapchain.Emplace<VulkanSwapChain>(*this, surface.Cast<VulkanSurface>(),
+                                     info);
+  return swapchain;
+}
+
+auto VulkanDevice::CreatePipeline(const RenderPass &render_pass,
+                                  const PipelineInfo &info) const -> Pipeline {
+  Pipeline pipeline{};
+  pipeline.Emplace<VulkanPipeline>(*this, render_pass.Cast<VulkanRenderPass>(),
+                                   info);
+  return pipeline;
+}
+
+auto VulkanDevice::CreateRenderPass(const RenderPassInfo &info) const
+    -> RenderPass {
+  RenderPass render_pass{};
+  render_pass.Emplace<VulkanRenderPass>(*this, info);
+  return render_pass;
+}
+
+auto VulkanDevice::CreateFrameBuffer(const RenderPass &render_pass,
+                                     const FrameBufferInfo &info) const
+    -> FrameBuffer {
+  FrameBuffer frame_buffer{};
+  frame_buffer.Emplace<VulkanFrameBuffer>(
+      *this, render_pass.Cast<VulkanRenderPass>(), info);
+  return frame_buffer;
+}
+auto VulkanDevice::CreateCommandPool() const -> CommandPool {
+  CommandPool command_pool{};
+  command_pool.Emplace<VulkanCommandPool>(*this);
+  return command_pool;
+}
+
+auto VulkanDevice::CreateCommandBuffer(const CommandPool &command_pool) const
+    -> CommandBuffer {
+  CommandBuffer command_buffer{};
+  command_buffer.Emplace<VulkanCommandBuffer>(
+      *this, command_pool.Cast<VulkanCommandPool>());
+  return command_buffer;
 }
 
 auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const

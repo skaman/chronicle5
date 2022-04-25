@@ -8,13 +8,8 @@
 #define CHR_RENDERER_INSTANCE_H_
 
 #include "device.h"
-#include "frame_buffer.h"
 #include "pch.h"
-#include "pipeline.h"
-#include "render_pass.h"
-#include "shader.h"
 #include "surface.h"
-#include "swap_chain.h"
 
 namespace chr::renderer {
 
@@ -31,38 +26,10 @@ struct InstanceI : entt::type_list<> {
     auto CreateDevice(const Surface& surface) -> Device {
       return this->template invoke<1>(*this, surface);
     }
-
-    auto CreateShader(const Device& device, const std::vector<uint8_t>& data)
-        -> Shader {
-      return this->template invoke<2>(*this, device, data);
-    }
-
-    auto CreateSwapChain(const Device& device, const Surface& surface,
-                         const SwapChainInfo& info) const -> SwapChain {
-      return this->template invoke<3>(*this, device, surface, info);
-    }
-
-    auto CreatePipeline(const Device& device, const RenderPass& render_pass,
-                        const PipelineInfo& info) const -> Pipeline {
-      return this->template invoke<4>(*this, device, render_pass, info);
-    }
-
-    auto CreateRenderPass(const Device& device,
-                          const RenderPassInfo& info) const -> RenderPass {
-      return this->template invoke<5>(*this, device, info);
-    }
-
-    auto CreateFrameBuffer(const Device& device, const RenderPass& render_pass,
-                           const FrameBufferInfo& info) const -> FrameBuffer {
-      return this->template invoke<6>(*this, device, render_pass, info);
-    }
   };
 
   template <typename Type>
-  using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice,
-                                &Type::CreateShader, &Type::CreateSwapChain,
-                                &Type::CreatePipeline, &Type::CreateRenderPass,
-                                &Type::CreateFrameBuffer>;
+  using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice>;
 };
 
 template <typename T>
@@ -144,40 +111,6 @@ struct Instance {
   //! @return The device.
   auto CreateDevice(const Surface& surface) -> Device {
     return instance_->CreateDevice(surface);
-  }
-
-  //! @brief Create a shader.
-  //! @param device Device to use for shader creation.
-  //! @param data Shader compiled binary data.
-  //! @return Shader module.
-  auto CreateShader(const Device& device, const std::vector<uint8_t>& data)
-      -> Shader {
-    return instance_->CreateShader(device, data);
-  }
-
-  //! @brief Create the swapchain.
-  //! @param device Device to use for swapchain creation.
-  //! @param surface Surface to use for swapchain creation.
-  //! @param info Informations used to create the swapchain.
-  //! @return The swapchain.
-  auto CreateSwapChain(const Device& device, const Surface& surface,
-                       const SwapChainInfo& info) const -> SwapChain {
-    return instance_->CreateSwapChain(device, surface, info);
-  }
-
-  auto CreatePipeline(const Device& device, const RenderPass& render_pass,
-                      const PipelineInfo& info) const -> Pipeline {
-    return instance_->CreatePipeline(device, render_pass, info);
-  }
-
-  auto CreateRenderPass(const Device& device, const RenderPassInfo& info) const
-      -> RenderPass {
-    return instance_->CreateRenderPass(device, info);
-  }
-
-  auto CreateFrameBuffer(const Device& device, const RenderPass& render_pass,
-                         const FrameBufferInfo& info) const -> FrameBuffer {
-    return instance_->CreateFrameBuffer(device, render_pass, info);
   }
 
  private:

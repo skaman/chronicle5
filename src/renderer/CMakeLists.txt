@@ -1,6 +1,8 @@
 find_package(Vulkan REQUIRED)
 
 add_library(chronicle-renderer
+    "command_buffer.h"
+    "command_pool.h"
     "common.h"
     "device.h"
     "enums.h"
@@ -16,6 +18,10 @@ add_library(chronicle-renderer
     "shader_compiler.h"
     "surface.h"
     "swap_chain.h"
+    "vulkan/vulkan_command_buffer.cc"
+    "vulkan/vulkan_command_buffer.h"
+    "vulkan/vulkan_command_pool.cc"
+    "vulkan/vulkan_command_pool.h"
     "vulkan/vulkan_device.cc"
     "vulkan/vulkan_device.h"
     "vulkan/vulkan_frame_buffer.cc"

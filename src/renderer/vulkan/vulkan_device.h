@@ -29,7 +29,7 @@ struct SwapChainSupportDetails {
 struct VulkanInstance;
 struct VulkanSurface;
 
-struct VulkanDevice {
+struct VulkanDevice : DeviceI {
   explicit VulkanDevice(const VulkanInstance &instance,
                         const VulkanSurface &surface);
 
@@ -55,6 +55,18 @@ struct VulkanDevice {
 
   VulkanDevice &operator=(const VulkanDevice &) = delete;
   VulkanDevice &operator=(VulkanDevice &&other) = delete;
+
+  auto CreateShader(const std::vector<uint8_t> &data) const -> Shader;
+  auto CreateSwapChain(const Surface &surface, const SwapChainInfo &info) const
+      -> SwapChain;
+  auto CreatePipeline(const RenderPass &render_pass,
+                      const PipelineInfo &info) const -> Pipeline;
+  auto CreateRenderPass(const RenderPassInfo &info) const -> RenderPass;
+  auto CreateFrameBuffer(const RenderPass &render_pass,
+                         const FrameBufferInfo &info) const -> FrameBuffer;
+  auto CreateCommandPool() const -> CommandPool;
+  auto CreateCommandBuffer(const CommandPool &command_pool) const
+      -> CommandBuffer;
 
   auto GetPhysicalDevices() const -> std::vector<VkPhysicalDevice>;
   auto GetPhysicalDevice() const -> VkPhysicalDevice {

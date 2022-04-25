@@ -32,16 +32,6 @@ struct VulkanInstance : InstanceI {
 
   auto CreateSurface(const SurfaceInfo &info) -> Surface;
   auto CreateDevice(const Surface &surface) -> Device;
-  auto CreateShader(const Device &device,
-                    const std::vector<uint8_t> &data) const -> Shader;
-  auto CreateSwapChain(const Device &device, const Surface &surface,
-                       const SwapChainInfo &info) const -> SwapChain;
-  auto CreatePipeline(const Device &device, const RenderPass &render_pass,
-                      const PipelineInfo &info) const -> Pipeline;
-  auto CreateRenderPass(const Device &device, const RenderPassInfo &info) const
-      -> RenderPass;
-  auto CreateFrameBuffer(const Device &device, const RenderPass &render_pass,
-                         const FrameBufferInfo &info) const -> FrameBuffer;
 
   auto GetLayers() const -> std::vector<VkLayerProperties>;
   auto GetExtensions() const -> std::vector<VkExtensionProperties>;

@@ -5,6 +5,8 @@
 #ifndef CHR_RENDERER_H_
 #define CHR_RENDERER_H_
 
+#include "../../src/renderer/command_buffer.h"
+#include "../../src/renderer/command_pool.h"
 #include "../../src/renderer/device.h"
 #include "../../src/renderer/frame_buffer.h"
 #include "../../src/renderer/image_view.h"

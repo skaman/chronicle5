@@ -12,6 +12,7 @@ namespace chr::renderer {
 
 namespace internal {
 constexpr size_t kSwapChainSize = 104;
+
 struct SwapChainI : entt::type_list<> {
   template <typename Base>
   struct type : Base {
@@ -38,6 +39,7 @@ template <typename T>
 concept ConceptSwapChain = std::is_base_of_v<SwapChainI, T>;
 
 struct VulkanInstance;
+struct VulkanDevice;
 }  // namespace internal
 
 struct SwapChainInfo {
@@ -90,6 +92,7 @@ struct SwapChain {
   entt::basic_poly<internal::SwapChainI, internal::kSwapChainSize> swapchain_{};
 
   friend struct internal::VulkanInstance;
+  friend struct internal::VulkanDevice;
 };
 
 }  // namespace chr::renderer
