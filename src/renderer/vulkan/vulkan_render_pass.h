@@ -2,11 +2,11 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#ifndef CHR_RENDERER_VULKAN_VULKAN_RENDERPASS_H_
-#define CHR_RENDERER_VULKAN_VULKAN_RENDERPASS_H_
+#ifndef CHR_RENDERER_VULKAN_VULKAN_RENDER_PASS_H_
+#define CHR_RENDERER_VULKAN_VULKAN_RENDER_PASS_H_
 
 #include "pch.h"
-#include "renderpass.h"
+#include "render_pass.h"
 #include "vulkan_pch.h"
 
 namespace chr::renderer::internal {
@@ -39,4 +39,4 @@ struct VulkanRenderPass {
 
 }  // namespace chr::renderer::internal
 
-#endif  // CHR_RENDERER_VULKAN_VULKAN_RENDERPASS_H_
+#endif  // CHR_RENDERER_VULKAN_VULKAN_RENDER_PASS_H_

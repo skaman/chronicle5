@@ -10,10 +10,10 @@
 #include "device.h"
 #include "pch.h"
 #include "pipeline.h"
-#include "renderpass.h"
+#include "render_pass.h"
 #include "shader.h"
 #include "surface.h"
-#include "swapchain.h"
+#include "swap_chain.h"
 
 namespace chr::renderer {
 

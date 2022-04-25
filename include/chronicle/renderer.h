@@ -5,12 +5,13 @@
 #ifndef CHR_RENDERER_H_
 #define CHR_RENDERER_H_
 
-#include "../../src/renderer/instance.h"
-#include "../../src/renderer/surface.h"
 #include "../../src/renderer/device.h"
+#include "../../src/renderer/instance.h"
+#include "../../src/renderer/pipeline.h"
+#include "../../src/renderer/render_pass.h"
 #include "../../src/renderer/shader.h"
 #include "../../src/renderer/shader_compiler.h"
-#include "../../src/renderer/swapchain.h"
-#include "../../src/renderer/pipeline.h"
+#include "../../src/renderer/surface.h"
+#include "../../src/renderer/swap_chain.h"
 
 #endif  // CHR_RENDERER_H_

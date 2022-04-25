@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#include "vulkan_swapchain.h"
+#include "vulkan_swap_chain.h"
 
 #include "common.h"
 #include "vulkan_device.h"

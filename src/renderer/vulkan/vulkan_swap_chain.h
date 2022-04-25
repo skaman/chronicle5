@@ -2,11 +2,11 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#ifndef CHR_RENDERER_VULKAN_VULKAN_SWAPCHAIN_H_
-#define CHR_RENDERER_VULKAN_VULKAN_SWAPCHAIN_H_
+#ifndef CHR_RENDERER_VULKAN_VULKAN_SWAP_CHAIN_H_
+#define CHR_RENDERER_VULKAN_VULKAN_SWAP_CHAIN_H_
 
 #include "pch.h"
-#include "swapchain.h"
+#include "swap_chain.h"
 #include "vulkan_pch.h"
 
 namespace chr::renderer::internal {
@@ -74,4 +74,4 @@ struct VulkanSwapChain : SwapChainI {
 
 }  // namespace chr::renderer::internal
 
-#endif  // CHR_RENDERER_VULKAN_VULKAN_SWAPCHAIN_H_
+#endif  // CHR_RENDERER_VULKAN_VULKAN_SWAP_CHAIN_H_

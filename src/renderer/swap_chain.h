@@ -2,8 +2,8 @@
 // Licensed under the MIT license.
 // See LICENSE file in the project root for full license information.
 
-#ifndef CHR_RENDERER_SWAPCHAIN_H_
-#define CHR_RENDERER_SWAPCHAIN_H_
+#ifndef CHR_RENDERER_SWAP_CHAIN_H_
+#define CHR_RENDERER_SWAP_CHAIN_H_
 
 #include "common.h"
 #include "format.h"
@@ -81,4 +81,4 @@ struct SwapChain {
 
 }  // namespace chr::renderer
 
-#endif  // CHR_RENDERER_SWAPCHAIN_H_
+#endif  // CHR_RENDERER_SWAP_CHAIN_H_

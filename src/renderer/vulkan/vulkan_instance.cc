@@ -7,10 +7,10 @@
 #include "common.h"
 #include "vulkan_device.h"
 #include "vulkan_pipeline.h"
-#include "vulkan_renderpass.h"
+#include "vulkan_render_pass.h"
 #include "vulkan_shader.h"
 #include "vulkan_surface.h"
-#include "vulkan_swapchain.h"
+#include "vulkan_swap_chain.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
 #include <Windows.h>
