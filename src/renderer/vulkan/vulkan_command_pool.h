@@ -13,18 +13,13 @@ namespace chr::renderer::internal {
 
 struct VulkanDevice;
 
-struct VulkanCommandPool {
+struct VulkanCommandPool : CommandPoolI {
   explicit VulkanCommandPool(const VulkanDevice &device);
 
   VulkanCommandPool(const VulkanCommandPool &) = delete;
+  VulkanCommandPool(VulkanCommandPool &&other) noexcept = delete;
 
-  VulkanCommandPool(VulkanCommandPool &&other) noexcept
-      : device_{other.device_}, command_pool_{other.command_pool_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.command_pool_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanCommandPool();
+  ~VulkanCommandPool() override;
 
   VulkanCommandPool &operator=(const VulkanCommandPool &) = delete;
   VulkanCommandPool &operator=(VulkanCommandPool &&other) = delete;

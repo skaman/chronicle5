@@ -16,10 +16,8 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanSurface) <= kSurfaceSize);
-
 VulkanSurface::VulkanSurface(const VulkanInstance &instance,
-                             const SurfaceInfo &info)
+                             const SurfaceCreateInfo &info)
     : instance_(instance.GetNativeInstance()) {
   if (info.custom_init) {
     surface_ = static_cast<VkSurfaceKHR>(info.custom_init(instance_));

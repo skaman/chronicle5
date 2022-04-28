@@ -10,17 +10,25 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kPipelineSize = 24;
-}  // namespace internal
-
-struct PipelineInfo {
+//! @brief Informations used to create a new pipeline.
+struct PipelineCreateInfo {
+  //! @brief Shaders attached to the pipeline.
   ShaderSet shader_set{};
-  glm::u32vec2 viewport;
-  glm::u32vec2 scissor;
+
+  //! @brief Viewport size.
+  glm::u32vec2 viewport{};
+
+  //! @brief Scissor size.
+  glm::u32vec2 scissor{};
 };
 
-using Pipeline = Handle<internal::kPipelineSize>;
+//! @brief Pipeline.
+struct PipelineI {
+  virtual ~PipelineI() = default;
+};
+
+//! @brief Shared pointer to an PipelineI.
+using Pipeline = std::shared_ptr<PipelineI>;
 
 }  // namespace chr::renderer
 

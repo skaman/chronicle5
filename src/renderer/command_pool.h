@@ -9,11 +9,14 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kCommandPoolSize = 16;
-}  // namespace internal
+//! @brief Command pools allow the implementation to amortize the cost of
+//!        resource creation across multiple command buffers.
+struct CommandPoolI {
+  virtual ~CommandPoolI() = default;
+};
 
-using CommandPool = Handle<internal::kCommandPoolSize>;
+//! @brief Shared pointer to a CommandPoolI.
+using CommandPool = std::shared_ptr<CommandPoolI>;
 
 }  // namespace chr::renderer
 

@@ -8,15 +8,15 @@
 
 namespace chr::renderer {
 
-Instance::Instance(BackendType type, const InstanceInfo &info) {
-  switch (type) {
-    case BackendType::kVulkan:
-      instance_.template emplace<internal::VulkanInstance>(info);
-      break;
-    default:
-      debug::Assert(false, "Platform type can't be 'none'");
-      break;
+auto CreateInstance(BackendType type, const InstanceCreateInfo &info)
+    -> Instance {
+  if (type == BackendType::kVulkan) {
+    return std::make_shared<internal::VulkanInstance>(info);
   }
+
+  debug::Assert(false, "Unsupported platform");
+
+  return nullptr;
 }
 
 }  // namespace chr::renderer

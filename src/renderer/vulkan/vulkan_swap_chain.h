@@ -17,43 +17,26 @@ struct VulkanSurface;
 struct VulkanSwapChain : SwapChainI {
   explicit VulkanSwapChain(const VulkanDevice &device,
                            const VulkanSurface &surface,
-                           const SwapChainInfo &info);
+                           const SwapChainCreateInfo &info);
 
   VulkanSwapChain(const VulkanSwapChain &) = delete;
+  VulkanSwapChain(VulkanSwapChain &&other) noexcept = delete;
 
-  VulkanSwapChain(VulkanSwapChain &&other) noexcept
-      : device_{other.device_},
-        surface_{other.surface_},
-        swapchain_{other.swapchain_},
-        images_{other.images_},
-        image_views_{std::move(other.image_views_)},
-        extent_{other.extent_},
-        format_{other.format_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.surface_ = VK_NULL_HANDLE;
-    other.swapchain_ = VK_NULL_HANDLE;
-    other.images_.clear();
-    other.image_views_.clear();
-    other.extent_ = {};
-    other.format_ = Format::kUndefined;
-  }
-
-  ~VulkanSwapChain();
+  ~VulkanSwapChain() override;
 
   VulkanSwapChain &operator=(const VulkanSwapChain &) = delete;
   VulkanSwapChain &operator=(VulkanSwapChain &&other) = delete;
 
-  auto GetNativeSwapChain() const -> VkSwapchainKHR { return swapchain_; }
-
-  auto GetExtent() const -> glm::u32vec2 { return extent_; }
-  auto GetFormat() const -> Format { return format_; }
-
-  auto GetImageViewCount() const -> uint32_t {
+  auto GetExtent() const -> glm::u32vec2 override { return extent_; }
+  auto GetFormat() const -> Format override { return format_; }
+  auto GetImageViewCount() const -> uint32_t override {
     return static_cast<uint32_t>(image_views_.size());
   }
-  auto GetImageView(uint32_t index) const -> const ImageView & {
+  auto GetImageView(uint32_t index) const -> ImageView override {
     return image_views_.at(index);
   }
+
+  auto GetNativeSwapChain() const -> VkSwapchainKHR { return swapchain_; }
 
  private:
   static auto ChooseSwapSurfaceFormat(

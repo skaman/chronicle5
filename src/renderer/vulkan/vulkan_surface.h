@@ -13,19 +13,14 @@ namespace chr::renderer::internal {
 
 struct VulkanInstance;
 
-struct VulkanSurface {
+struct VulkanSurface : SurfaceI {
   explicit VulkanSurface(const VulkanInstance &instance,
-                         const SurfaceInfo &info);
+                         const SurfaceCreateInfo &info);
 
   VulkanSurface(const VulkanSurface &) = delete;
+  VulkanSurface(VulkanSurface &&other) noexcept = delete;
 
-  VulkanSurface(VulkanSurface &&other) noexcept
-      : instance_{other.instance_}, surface_{other.surface_} {
-    other.instance_ = VK_NULL_HANDLE;
-    other.surface_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanSurface();
+  ~VulkanSurface() override;
 
   VulkanSurface &operator=(const VulkanSurface &) = delete;
   VulkanSurface &operator=(VulkanSurface &&other) = delete;

@@ -11,18 +11,16 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanFrameBuffer) <= kFrameBufferSize);
-
 VulkanFrameBuffer::VulkanFrameBuffer(const VulkanDevice &device,
                                      const VulkanRenderPass &render_pass,
-                                     const FrameBufferInfo &info)
+                                     const FrameBufferCreateInfo &info)
     : device_(device.GetNativeDevice()) {
   std::vector<VkImageView> attachments{};
   attachments.reserve(info.attachments.size());
 
   for (auto &attachment : info.attachments) {
-    attachments.push_back(
-        attachment.get().Cast<VulkanImageView>().GetNativeImageView());
+    auto vulkanImageView = static_cast<VulkanImageView *>(attachment.get());
+    attachments.push_back(vulkanImageView->GetNativeImageView());
   }
 
   VkFramebufferCreateInfo frame_buffer_info{};

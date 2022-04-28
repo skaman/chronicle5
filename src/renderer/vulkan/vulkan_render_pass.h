@@ -13,19 +13,14 @@ namespace chr::renderer::internal {
 
 struct VulkanDevice;
 
-struct VulkanRenderPass {
+struct VulkanRenderPass : RenderPassI {
   explicit VulkanRenderPass(const VulkanDevice &device,
-                            const RenderPassInfo &info);
+                            const RenderPassCreateInfo &info);
 
   VulkanRenderPass(const VulkanRenderPass &) = delete;
+  VulkanRenderPass(VulkanRenderPass &&other) noexcept = delete;
 
-  VulkanRenderPass(VulkanRenderPass &&other) noexcept
-      : device_{other.device_}, render_pass_{other.render_pass_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.render_pass_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanRenderPass();
+  ~VulkanRenderPass() override;
 
   VulkanRenderPass &operator=(const VulkanRenderPass &) = delete;
   VulkanRenderPass &operator=(VulkanRenderPass &&other) = delete;

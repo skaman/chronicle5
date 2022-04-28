@@ -18,108 +18,57 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kDeviceSize = 80;
+//! @brief Logical device that handle the connection with the physical device.
+//!        The physical device is automatically picked up from available devices
+//!        trying to guess the most performant one.
+struct DeviceI {
+  virtual ~DeviceI() = default;
 
-struct DeviceI : entt::type_list<> {
-  template <typename Base>
-  struct type : Base {
-    auto CreateShader(const std::vector<uint8_t>& data) -> Shader {
-      return this->template invoke<0>(*this, data);
-    }
+  //! @brief Create a new shader modules.
+  //! @param data Shader binary data (already compiled).
+  //! @return A shared pointer to the ShaderI instance.
+  virtual auto CreateShader(const std::vector<uint8_t>& data) const
+      -> Shader = 0;
 
-    auto CreateSwapChain(const Surface& surface,
-                         const SwapChainInfo& info) const -> SwapChain {
-      return this->template invoke<1>(*this, surface, info);
-    }
+  //! @brief Create a new swapchain.
+  //! @param surface Surface used for create the swapchain.
+  //! @param info Informations used to create a new swapchain.
+  //! @return A shared pointer to the SwapChainI instance.
+  virtual auto CreateSwapChain(const Surface& surface,
+                               const SwapChainCreateInfo& info) const
+      -> SwapChain = 0;
 
-    auto CreatePipeline(const RenderPass& render_pass,
-                        const PipelineInfo& info) const -> Pipeline {
-      return this->template invoke<2>(*this, render_pass, info);
-    }
+  //! @brief Create a new pipeline.
+  //! @param render_pass Render pass used to create the new pipeline.
+  //! @param info Informations used to create a new pipeline.
+  //! @return A shared pointer to the PipelineI instance.
+  virtual auto CreatePipeline(const RenderPass& render_pass,
+                              const PipelineCreateInfo& info) const
+      -> Pipeline = 0;
 
-    auto CreateRenderPass(const RenderPassInfo& info) const -> RenderPass {
-      return this->template invoke<3>(*this, info);
-    }
+  //! @brief Create a new render pass.
+  //! @param info Informations used to create a new render pass.
+  //! @return A shared pointer to the RenderPassI instance.
+  virtual auto CreateRenderPass(const RenderPassCreateInfo& info) const
+      -> RenderPass = 0;
 
-    auto CreateFrameBuffer(const RenderPass& render_pass,
-                           const FrameBufferInfo& info) const -> FrameBuffer {
-      return this->template invoke<4>(*this, render_pass, info);
-    }
-  };
+  //! @brief Create a new frame buffer.
+  //! @param render_pass Render pass used to create the new frame buffer.
+  //! @param info Informations used to create a new frame buffer.
+  //! @return A shared pointer to the FrameBufferI instance.
+  virtual auto CreateFrameBuffer(const RenderPass& render_pass,
+                                 const FrameBufferCreateInfo& info) const
+      -> FrameBuffer = 0;
 
-  template <typename Type>
-  using impl = entt::value_list<&Type::CreateShader, &Type::CreateSwapChain,
-                                &Type::CreatePipeline, &Type::CreateRenderPass,
-                                &Type::CreateFrameBuffer>;
+  //! @brief Create a new command buffer.
+  //! @param command_pool Command pool used to create the new command pool
+  //! @return A shared pointer to the CommandBufferI instance.
+  virtual auto CreateCommandBuffer(const CommandPool& command_pool) const
+      -> CommandBuffer = 0;
 };
 
-template <typename T>
-concept ConceptDevice = std::is_base_of_v<DeviceI, T>;
-
-struct VulkanInstance;
-}  // namespace internal
-
-//! @brief Logical device that handle communications with the 3D video card.
-//!        It automatically pick the best video physical device.
-struct Device {
-  //! @brief The copy constructor is not supported.
-  Device(const Device&) = delete;
-
-  //! @brief Move constructor.
-  Device(Device&& other) noexcept : device_(std::move(other.device_)) {}
-
-  ~Device() = default;
-
-  //! @brief The copy assignment operator is not supported.
-  Device& operator=(const Device&) = delete;
-
-  //! @brief Move assignment operator.
-  Device& operator=(Device&& other) noexcept {
-    std::swap(device_, other.device_);
-    return *this;
-  }
-
-  auto CreateShader(const std::vector<uint8_t>& data) -> Shader {
-    return device_->CreateShader(data);
-  }
-
-  auto CreateSwapChain(const Surface& surface, const SwapChainInfo& info) const
-      -> SwapChain {
-    return device_->CreateSwapChain(surface, info);
-  }
-
-  auto CreatePipeline(const RenderPass& render_pass,
-                      const PipelineInfo& info) const -> Pipeline {
-    return device_->CreatePipeline(render_pass, info);
-  }
-
-  auto CreateRenderPass(const RenderPassInfo& info) const -> RenderPass {
-    return device_->CreateRenderPass(info);
-  }
-
-  auto CreateFrameBuffer(const RenderPass& render_pass,
-                         const FrameBufferInfo& info) const -> FrameBuffer {
-    return device_->CreateFrameBuffer(render_pass, info);
-  }
-
- private:
-  explicit Device() = default;
-
-  template <internal::ConceptDevice Type>
-  auto Cast() const -> const Type& {
-    return *static_cast<const Type*>(device_.data());
-  }
-
-  template <internal::ConceptDevice Type, typename... Args>
-  auto Emplace(Args&&... args) -> void {
-    device_.emplace<Type>(std::forward<Args>(args)...);
-  }
-
-  entt::basic_poly<internal::DeviceI, internal::kDeviceSize> device_{};
-
-  friend struct internal::VulkanInstance;
-};
+//! @brief Shared pointer to an DeviceI.
+using Device = std::shared_ptr<DeviceI>;
 
 }  // namespace chr::renderer
 

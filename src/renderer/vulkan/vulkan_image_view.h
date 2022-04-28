@@ -5,27 +5,22 @@
 #ifndef CHR_RENDERER_VULKAN_VULKAN_IMAGE_VIEW_H_
 #define CHR_RENDERER_VULKAN_VULKAN_IMAGE_VIEW_H_
 
-#include "pch.h"
 #include "image_view.h"
+#include "pch.h"
 #include "vulkan_pch.h"
 
 namespace chr::renderer::internal {
 
 struct VulkanDevice;
 
-struct VulkanImageView {
+struct VulkanImageView : ImageViewI {
   explicit VulkanImageView(const VulkanDevice &device, const VkFormat format,
                            const VkImage image);
 
   VulkanImageView(const VulkanImageView &) = delete;
+  VulkanImageView(VulkanImageView &&other) noexcept = delete;
 
-  VulkanImageView(VulkanImageView &&other) noexcept
-      : device_{other.device_}, image_view_{other.image_view_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.image_view_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanImageView();
+  ~VulkanImageView() override;
 
   VulkanImageView &operator=(const VulkanImageView &) = delete;
   VulkanImageView &operator=(VulkanImageView &&other) = delete;

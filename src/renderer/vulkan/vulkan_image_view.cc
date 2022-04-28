@@ -9,8 +9,6 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanImageView) <= kImageViewSize);
-
 VulkanImageView::VulkanImageView(const VulkanDevice &device,
                                  const VkFormat format, const VkImage image)
     : device_(device.GetNativeDevice()) {

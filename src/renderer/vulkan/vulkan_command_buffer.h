@@ -19,27 +19,19 @@ struct VulkanCommandBuffer : CommandBufferI {
                                const VulkanCommandPool &command_pool);
 
   VulkanCommandBuffer(const VulkanCommandBuffer &) = delete;
-
-  VulkanCommandBuffer(VulkanCommandBuffer &&other) noexcept
-      : device_{other.device_}, command_buffer_{other.command_buffer_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.command_buffer_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanCommandBuffer() = default;
+  VulkanCommandBuffer(VulkanCommandBuffer &&other) noexcept = delete;
 
   VulkanCommandBuffer &operator=(const VulkanCommandBuffer &) = delete;
   VulkanCommandBuffer &operator=(VulkanCommandBuffer &&other) = delete;
 
-  auto Begin() -> void;
-  auto End() -> void;
-
+  auto Begin() -> void override;
+  auto End() -> void override;
   auto BeginRenderPass(const RenderPass &render_pass,
                        const FrameBuffer &frame_buffer,
-                       const BeginRenderPassInfo &info) -> void;
-  auto EndRenderPass() -> void;
-  auto BindPipeline(const Pipeline &pipeline) -> void;
-  auto Draw(const DrawInfo& info) -> void;
+                       const BeginRenderPassInfo &info) -> void override;
+  auto EndRenderPass() -> void override;
+  auto BindPipeline(const Pipeline &pipeline) -> void override;
+  auto Draw(const DrawInfo &info) -> void override;
 
   auto GetNativeCommandBuffer() const -> VkCommandBuffer {
     return command_buffer_;

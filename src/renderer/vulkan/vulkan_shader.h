@@ -13,19 +13,14 @@ namespace chr::renderer::internal {
 
 struct VulkanDevice;
 
-struct VulkanShader {
+struct VulkanShader : ShaderI {
   explicit VulkanShader(const VulkanDevice &device,
                         const std::vector<uint8_t> &data);
 
   VulkanShader(const VulkanShader &) = delete;
+  VulkanShader(VulkanShader &&other) noexcept = delete;
 
-  VulkanShader(VulkanShader &&other) noexcept
-      : device_{other.device_}, shader_{other.shader_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.shader_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanShader();
+  ~VulkanShader() override;
 
   VulkanShader &operator=(const VulkanShader &) = delete;
   VulkanShader &operator=(VulkanShader &&other) = delete;

@@ -13,29 +13,6 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kInstanceSize = 80;
-
-struct InstanceI : entt::type_list<> {
-  template <typename Base>
-  struct type : Base {
-    auto CreateSurface(const SurfaceInfo& info) -> Surface {
-      return this->template invoke<0>(*this, info);
-    }
-
-    auto CreateDevice(const Surface& surface) -> Device {
-      return this->template invoke<1>(*this, surface);
-    }
-  };
-
-  template <typename Type>
-  using impl = entt::value_list<&Type::CreateSurface, &Type::CreateDevice>;
-};
-
-template <typename T>
-concept ConceptInstance = std::is_base_of_v<InstanceI, T>;
-}  // namespace internal
-
 //! @brief Semantic version.
 struct Version {
   uint16_t major;  //!< Major.
@@ -51,7 +28,7 @@ struct Version {
 };
 
 //! @brief Informations used to create a new renderer instance.
-struct InstanceInfo {
+struct InstanceCreateInfo {
   //! @brief Renderer debug level.
   DebugLevel debug_level = DebugLevel::kNone;
 
@@ -72,50 +49,33 @@ struct InstanceInfo {
   Version engine_version{0, 0, 0};
 };
 
-//! @brief The instance will create a connection between your application and
-//!        the video driver and it's the main entry point for handle the
-//!        creation of the low level graphics objects like surfaces, buffers,
-//!        shaders, etc. etc.
-struct Instance {
-  //! @brief Constructor.
-  //! @param type Type of the graphics backend.
-  //! @param info Informations used to create a new renderer instance.
-  explicit Instance(BackendType type, const InstanceInfo& info);
+//! @brief The instance handle a connection between the application and the
+//!        video driver and it's the main entry point for handle the creation of
+//!        the low level graphics objects like surfaces, buffers, shaders, etc.
+//!        etc.
+struct InstanceI {
+  virtual ~InstanceI() = default;
 
-  //! @brief The copy constructor is not supported.
-  Instance(const Instance&) = delete;
-
-  //! @brief Move constructor.
-  Instance(Instance&& other) noexcept : instance_(std::move(other.instance_)) {}
-
-  ~Instance() = default;
-
-  //! @brief The copy assignment operator is not supported.
-  Instance& operator=(const Instance&) = delete;
-
-  //! @brief Move assignment operator.
-  Instance& operator=(Instance&& other) noexcept {
-    std::swap(instance_, other.instance_);
-    return *this;
-  }
-
-  //! @brief Create a surface.
+  //! @brief Create a SurfaceI instance.
   //! @param info Informations used to create a new surface.
-  //! @return The surface.
-  auto CreateSurface(const SurfaceInfo& info) -> Surface {
-    return instance_->CreateSurface(info);
-  }
+  //! @return A shared pointer to the SurfaceI instance.
+  virtual auto CreateSurface(const SurfaceCreateInfo& info) -> Surface = 0;
 
-  //! @brief Create a device.
+  //! @brief Create a DeviceI instance.
   //! @param surface Surface where the device need to draw.
-  //! @return The device.
-  auto CreateDevice(const Surface& surface) -> Device {
-    return instance_->CreateDevice(surface);
-  }
-
- private:
-  entt::basic_poly<internal::InstanceI, internal::kInstanceSize> instance_{};
+  //! @return A shared pointer to the DeviceI instance.
+  virtual auto CreateDevice(const Surface& surface) -> Device = 0;
 };
+
+//! @brief Shared pointer to an InstanceI.
+using Instance = std::shared_ptr<InstanceI>;
+
+//! @brief Create a new renderer instance.
+//! @param type Type of the graphics backend.
+//! @param info Informations used to create a new renderer instance.
+//! @return A shared pointer to the InstanceI
+auto CreateInstance(BackendType type, const InstanceCreateInfo& info)
+    -> Instance;
 
 }  // namespace chr::renderer
 

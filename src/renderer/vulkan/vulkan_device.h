@@ -34,39 +34,28 @@ struct VulkanDevice : DeviceI {
                         const VulkanSurface &surface);
 
   VulkanDevice(const VulkanDevice &) = delete;
-  VulkanDevice(VulkanDevice &&other) noexcept
-      : instance_{std::move(other.instance_)},
-        surface_{std::move(other.surface_)},
-        physical_device_{std::move(other.physical_device_)},
-        device_{std::move(other.device_)},
-        graphics_queue_{std::move(other.graphics_queue_)},
-        present_queue_{std::move(other.present_queue_)},
-        device_extensions_{std::move(other.device_extensions_)} {
-    other.instance_ = VK_NULL_HANDLE;
-    other.surface_ = VK_NULL_HANDLE;
-    other.physical_device_ = VK_NULL_HANDLE;
-    other.device_ = VK_NULL_HANDLE;
-    other.graphics_queue_ = VK_NULL_HANDLE;
-    other.present_queue_ = VK_NULL_HANDLE;
-    other.device_extensions_.clear();
-  }
+  VulkanDevice(VulkanDevice &&other) noexcept = delete;
 
-  ~VulkanDevice();
+  ~VulkanDevice() override;
 
   VulkanDevice &operator=(const VulkanDevice &) = delete;
   VulkanDevice &operator=(VulkanDevice &&other) = delete;
 
-  auto CreateShader(const std::vector<uint8_t> &data) const -> Shader;
-  auto CreateSwapChain(const Surface &surface, const SwapChainInfo &info) const
-      -> SwapChain;
+  auto CreateShader(const std::vector<uint8_t> &data) const -> Shader override;
+  auto CreateSwapChain(const Surface &surface,
+                       const SwapChainCreateInfo &info) const
+      -> SwapChain override;
   auto CreatePipeline(const RenderPass &render_pass,
-                      const PipelineInfo &info) const -> Pipeline;
-  auto CreateRenderPass(const RenderPassInfo &info) const -> RenderPass;
+                      const PipelineCreateInfo &info) const
+      -> Pipeline override;
+  auto CreateRenderPass(const RenderPassCreateInfo &info) const
+      -> RenderPass override;
   auto CreateFrameBuffer(const RenderPass &render_pass,
-                         const FrameBufferInfo &info) const -> FrameBuffer;
+                         const FrameBufferCreateInfo &info) const
+      -> FrameBuffer override;
   auto CreateCommandPool() const -> CommandPool;
   auto CreateCommandBuffer(const CommandPool &command_pool) const
-      -> CommandBuffer;
+      -> CommandBuffer override;
 
   auto GetPhysicalDevices() const -> std::vector<VkPhysicalDevice>;
   auto GetPhysicalDevice() const -> VkPhysicalDevice {

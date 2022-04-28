@@ -12,111 +12,60 @@
 
 namespace chr::renderer {
 
+//! @brief Informations used to begin a render pass.
 struct BeginRenderPassInfo {
+  //! @brief Offset of the render area.
   glm::i32vec2 render_area_offset{};
+
+  //! @brief Size of the render area.
   glm::u32vec2 render_area_extent{};
-  glm::vec4 clear_color{};
+
+  //! @brief Clear values for eatch attachment defined into FrameBufferI.
+  std::vector<glm::vec4> clear_colors{};
 };
 
+//! @brief Informations use to record a draw command.
 struct DrawInfo {
+  //! @brief Number of vertices to draw.
   uint32_t vertex_count;
+
+  //! @brief Index of the first vertex to draw.
   uint32_t first_vertex;
 };
 
-namespace internal {
-constexpr size_t kCommandBufferSize = 16;
+//! @brief Command buffers are objects used to record commands which can be
+//!        subsequently submitted to a device queue for execution.
+struct CommandBufferI {
+  virtual ~CommandBufferI() = default;
 
-struct CommandBufferI : entt::type_list<> {
-  template <typename Base>
-  struct type : Base {
-    auto Begin() -> void { this->template invoke<0>(*this); }
+  //! @brief Begin to recording a command buffer.
+  virtual auto Begin() -> void = 0;
 
-    auto End() -> void { this->template invoke<1>(*this); }
+  //! @brief Complete to recording a command buffer.
+  virtual auto End() -> void = 0;
 
-    auto BeginRenderPass(const RenderPass& render_pass,
-                         const FrameBuffer& frame_buffer,
-                         const BeginRenderPassInfo& info) -> void {
-      this->template invoke<2>(*this, render_pass, frame_buffer, info);
-    }
+  //! @brief Begin a render pass instance.
+  //! @param render_pass Render pass where to begin the instance.
+  //! @param frame_buffer Frame buffer where to begin the instance.
+  //! @param info Informations used to begin a render pass.
+  virtual auto BeginRenderPass(const RenderPass& render_pass,
+                               const FrameBuffer& frame_buffer,
+                               const BeginRenderPassInfo& info) -> void = 0;
 
-    auto EndRenderPass() -> void { this->template invoke<3>(*this); }
+  //! @brief End a render pass instance.
+  virtual auto EndRenderPass() -> void = 0;
 
-    auto BindPipeline(const Pipeline& pipeline) -> void {
-      this->template invoke<4>(*this, pipeline);
-    }
+  //! @brief Bound the command buffer to a pipeline.
+  //! @param pipeline Pipeline to be bound.
+  virtual auto BindPipeline(const Pipeline& pipeline) -> void = 0;
 
-    auto Draw(const DrawInfo& info) -> void {
-      this->template invoke<5>(*this, info);
-    }
-  };
-
-  template <typename Type>
-  using impl =
-      entt::value_list<&Type::Begin, &Type::End, &Type::BeginRenderPass,
-                       &Type::EndRenderPass, &Type::BindPipeline, &Type::Draw>;
+  //! @brief Record a non-indexed draw call.
+  //! @param info Informations use to record a draw command.
+  virtual auto Draw(const DrawInfo& info) -> void = 0;
 };
 
-template <typename T>
-concept ConceptCommandBuffer = std::is_base_of_v<CommandBufferI, T>;
-
-struct VulkanDevice;
-}  // namespace internal
-
-struct CommandBuffer {
-  //! @brief The copy constructor is not supported.
-  CommandBuffer(const CommandBuffer&) = delete;
-
-  //! @brief Move constructor.
-  CommandBuffer(CommandBuffer&& other) noexcept
-      : command_buffer_(std::move(other.command_buffer_)) {}
-
-  ~CommandBuffer() = default;
-
-  //! @brief The copy assignment operator is not supported.
-  CommandBuffer& operator=(const CommandBuffer&) = delete;
-
-  //! @brief Move assignment operator.
-  CommandBuffer& operator=(CommandBuffer&& other) noexcept {
-    std::swap(command_buffer_, other.command_buffer_);
-    return *this;
-  }
-
-  auto Begin() -> void { command_buffer_->Begin(); }
-
-  auto End() -> void { command_buffer_->End(); }
-
-  auto BeginRenderPass(const RenderPass& render_pass,
-                       const FrameBuffer& frame_buffer,
-                       const BeginRenderPassInfo& info) -> void {
-    command_buffer_->BeginRenderPass(render_pass, frame_buffer, info);
-  }
-
-  auto EndRenderPass() -> void { command_buffer_->EndRenderPass(); }
-
-  auto BindPipeline(const Pipeline& pipeline) -> void {
-    command_buffer_->BindPipeline(pipeline);
-  }
-
-  auto Draw(const DrawInfo& info) -> void { command_buffer_->Draw(info); }
-
- private:
-  explicit CommandBuffer() = default;
-
-  template <internal::ConceptCommandBuffer Type>
-  auto Cast() const -> const Type& {
-    return *static_cast<const Type*>(command_buffer_.data());
-  }
-
-  template <internal::ConceptCommandBuffer Type, typename... Args>
-  auto Emplace(Args&&... args) -> void {
-    command_buffer_.emplace<Type>(std::forward<Args>(args)...);
-  }
-
-  entt::basic_poly<internal::CommandBufferI, internal::kCommandBufferSize>
-      command_buffer_{};
-
-  friend struct internal::VulkanDevice;
-};
+//! @brief Shared pointer to a CommandBufferI.
+using CommandBuffer = std::shared_ptr<CommandBufferI>;
 
 }  // namespace chr::renderer
 

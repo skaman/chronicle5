@@ -9,15 +9,21 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kRenderPassSize = 16;
-}  // namespace internal
-
-struct RenderPassInfo {
+//! @brief Informations used to create a new render pass.
+struct RenderPassCreateInfo {
+  //! @brief Format used for color attachment.
   Format format;
 };
 
-using RenderPass = Handle<internal::kRenderPassSize>;
+//! @brief A render pass represents a collection of attachments, subpasses, and
+//!        dependencies between the subpasses, and describes how the attachments
+//!        are used over the course of the subpasses.
+struct RenderPassI {
+  virtual ~RenderPassI() = default;
+};
+
+//! @brief Shared pointer to a RenderPassI.
+using RenderPass = std::shared_ptr<RenderPassI>;
 
 }  // namespace chr::renderer
 

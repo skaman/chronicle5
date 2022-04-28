@@ -9,8 +9,6 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanCommandPool) <= kCommandPoolSize);
-
 VulkanCommandPool::VulkanCommandPool(const VulkanDevice &device)
     : device_(device.GetNativeDevice()) {
   auto queueFamilyIndices =

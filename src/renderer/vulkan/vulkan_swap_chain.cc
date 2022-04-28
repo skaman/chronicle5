@@ -12,11 +12,9 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanSwapChain) <= kSwapChainSize);
-
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
                                  const VulkanSurface &surface,
-                                 const SwapChainInfo &info)
+                                 const SwapChainCreateInfo &info)
     : device_{device.GetNativeDevice()}, surface_{surface.GetNativeSurface()} {
   auto swap_chain_support =
       device.QuerySwapChainSupport(device.GetPhysicalDevice());
@@ -25,9 +23,8 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
 
   auto surface_format = ChooseSwapSurfaceFormat(swap_chain_support.formats);
   auto present_mode = ChooseSwapPresentMode(swap_chain_support.present_modes);
-  auto extent =
-      ChooseSwapExtent(swap_chain_support.capabilities, info.frame_buffer_width,
-                       info.frame_buffer_height);
+  auto extent = ChooseSwapExtent(swap_chain_support.capabilities,
+                                 info.image_size.x, info.image_size.y);
 
   uint32_t image_count = swap_chain_support.capabilities.minImageCount + 1;
   if (swap_chain_support.capabilities.maxImageCount > 0 &&
@@ -158,9 +155,8 @@ auto VulkanSwapChain::CreateImageViews(const VulkanDevice &device,
   image_views_.reserve(image_count);
   for (auto i = 0; i < image_count; i++) {
     try {
-      ImageView image_view{};
-      image_view.Emplace<VulkanImageView>(device, image_format, images_.at(i));
-      image_views_.push_back(std::move(image_view));
+      image_views_.push_back(std::make_shared<VulkanImageView>(
+          device, image_format, images_.at(i)));
     } catch (std::exception) {
       image_views_.clear();
       throw;

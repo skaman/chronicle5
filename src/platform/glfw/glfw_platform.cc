@@ -74,7 +74,7 @@ auto GlfwPlatform::Run() -> int {
   glfwGetWindowSize(window_, &width, &height);
   glfwGetFramebufferSize(window_, &rect_width, &rect_height);
 
-  renderer::InstanceInfo instanceInfo{
+  renderer::InstanceCreateInfo instanceInfo{
       .debug_level{renderer::DebugLevel::kWarning},
       .application_name{"Test application"},
       .engine_name{"Chronicle"}};
@@ -86,22 +86,23 @@ auto GlfwPlatform::Run() -> int {
     instanceInfo.required_extensions.emplace_back(extensions[i]);
   }
 
-  renderer::Instance instance{chr::renderer::BackendType::kVulkan,
-                              instanceInfo};
+  auto instance = renderer::CreateInstance(chr::renderer::BackendType::kVulkan,
+                                           instanceInfo);
 
   auto window = window_;
-  renderer::SurfaceInfo surface_info{.custom_init = [window](void *opaque) {
-    VkSurfaceKHR vulkan_surface{VK_NULL_HANDLE};
-    glfwCreateWindowSurface(static_cast<VkInstance>(opaque), window, nullptr,
-                            &vulkan_surface);
-    return vulkan_surface;
-  }};
+  renderer::SurfaceCreateInfo surface_info{
+      .custom_init = [window](void *opaque) {
+        VkSurfaceKHR vulkan_surface{VK_NULL_HANDLE};
+        glfwCreateWindowSurface(static_cast<VkInstance>(opaque), window,
+                                nullptr, &vulkan_surface);
+        return vulkan_surface;
+      }};
 
-  auto surface = instance.CreateSurface(surface_info);
-  auto device = instance.CreateDevice(surface);
-  auto swapchain = device.CreateSwapChain(
-      surface, {.frame_buffer_width = static_cast<uint32_t>(rect_width),
-                .frame_buffer_height = static_cast<uint32_t>(rect_height)});
+  auto surface = instance->CreateSurface(surface_info);
+  auto device = instance->CreateDevice(surface);
+  auto swapchain = device->CreateSwapChain(
+      surface, {.image_size = {static_cast<uint32_t>(rect_width),
+                               static_cast<uint32_t>(rect_height)}});
 
   entt::locator<Platform>::emplace(instance, surface, device, swapchain);
   auto &platform = entt::locator<Platform>::value();

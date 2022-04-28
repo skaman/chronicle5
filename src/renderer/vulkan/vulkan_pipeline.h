@@ -14,23 +14,15 @@ namespace chr::renderer::internal {
 struct VulkanDevice;
 struct VulkanRenderPass;
 
-struct VulkanPipeline {
+struct VulkanPipeline : PipelineI {
   explicit VulkanPipeline(const VulkanDevice &device,
                           const VulkanRenderPass &render_pass,
-                          const PipelineInfo &info);
+                          const PipelineCreateInfo &info);
 
   VulkanPipeline(const VulkanPipeline &) = delete;
+  VulkanPipeline(VulkanPipeline &&other) noexcept = delete;
 
-  VulkanPipeline(VulkanPipeline &&other) noexcept
-      : device_{other.device_},
-        pipeline_layout_{other.pipeline_layout_},
-        pipeline_{other.pipeline_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.pipeline_layout_ = VK_NULL_HANDLE;
-    other.pipeline_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanPipeline();
+  ~VulkanPipeline() override;
 
   VulkanPipeline &operator=(const VulkanPipeline &) = delete;
   VulkanPipeline &operator=(VulkanPipeline &&other) = delete;

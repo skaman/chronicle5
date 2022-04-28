@@ -17,8 +17,6 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanDevice) <= kDeviceSize);
-
 VulkanDevice::VulkanDevice(const VulkanInstance &instance,
                            const VulkanSurface &surface)
     : instance_{instance.GetNativeInstance()},
@@ -61,55 +59,42 @@ auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
 
 auto VulkanDevice::CreateShader(const std::vector<uint8_t> &data) const
     -> Shader {
-  Shader shader{};
-  shader.Emplace<VulkanShader>(*this, data);
-  return shader;
+  return std::make_shared<VulkanShader>(*this, data);
 }
 
 auto VulkanDevice::CreateSwapChain(const Surface &surface,
-                                   const SwapChainInfo &info) const
+                                   const SwapChainCreateInfo &info) const
     -> SwapChain {
-  SwapChain swapchain{};
-  swapchain.Emplace<VulkanSwapChain>(*this, surface.Cast<VulkanSurface>(),
-                                     info);
-  return swapchain;
+  return std::make_shared<VulkanSwapChain>(
+      *this, *static_cast<VulkanSurface *>(surface.get()), info);
 }
 
 auto VulkanDevice::CreatePipeline(const RenderPass &render_pass,
-                                  const PipelineInfo &info) const -> Pipeline {
-  Pipeline pipeline{};
-  pipeline.Emplace<VulkanPipeline>(*this, render_pass.Cast<VulkanRenderPass>(),
-                                   info);
-  return pipeline;
+                                  const PipelineCreateInfo &info) const
+    -> Pipeline {
+  return std::make_shared<VulkanPipeline>(
+      *this, *static_cast<VulkanRenderPass *>(render_pass.get()), info);
 }
 
-auto VulkanDevice::CreateRenderPass(const RenderPassInfo &info) const
+auto VulkanDevice::CreateRenderPass(const RenderPassCreateInfo &info) const
     -> RenderPass {
-  RenderPass render_pass{};
-  render_pass.Emplace<VulkanRenderPass>(*this, info);
-  return render_pass;
+  return std::make_shared<VulkanRenderPass>(*this, info);
 }
 
 auto VulkanDevice::CreateFrameBuffer(const RenderPass &render_pass,
-                                     const FrameBufferInfo &info) const
+                                     const FrameBufferCreateInfo &info) const
     -> FrameBuffer {
-  FrameBuffer frame_buffer{};
-  frame_buffer.Emplace<VulkanFrameBuffer>(
-      *this, render_pass.Cast<VulkanRenderPass>(), info);
-  return frame_buffer;
+  return std::make_shared<VulkanFrameBuffer>(
+      *this, *static_cast<VulkanRenderPass *>(render_pass.get()), info);
 }
 auto VulkanDevice::CreateCommandPool() const -> CommandPool {
-  CommandPool command_pool{};
-  command_pool.Emplace<VulkanCommandPool>(*this);
-  return command_pool;
+  return std::make_shared<VulkanCommandPool>(*this);
 }
 
 auto VulkanDevice::CreateCommandBuffer(const CommandPool &command_pool) const
     -> CommandBuffer {
-  CommandBuffer command_buffer{};
-  command_buffer.Emplace<VulkanCommandBuffer>(
-      *this, command_pool.Cast<VulkanCommandPool>());
-  return command_buffer;
+  return std::make_shared<VulkanCommandBuffer>(
+      *this, *static_cast<VulkanCommandPool *>(command_pool.get()));
 }
 
 auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const

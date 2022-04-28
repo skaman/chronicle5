@@ -12,23 +12,21 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanPipeline) <= kPipelineSize);
-
 VulkanPipeline::VulkanPipeline(const VulkanDevice &device,
                                const VulkanRenderPass &render_pass,
-                               const PipelineInfo &info)
+                               const PipelineCreateInfo &info)
     : device_(device.GetNativeDevice()) {
   // Shader stage creation
   std::vector<VkPipelineShaderStageCreateInfo> shader_stages;
   shader_stages.reserve(info.shader_set.size());
 
-  for (auto [stage, shader] : info.shader_set) {
-    auto &vulkan_shader = shader.Cast<VulkanShader>();
+  for (const auto &[stage, shader] : info.shader_set) {
+    auto vulkan_shader = static_cast<VulkanShader *>(shader.get());
     VkPipelineShaderStageCreateInfo shader_stage_info{};
     shader_stage_info.sType =
         VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shader_stage_info.stage = GetShaderStageFlagBits(stage);
-    shader_stage_info.module = vulkan_shader.GetNativeShader();
+    shader_stage_info.module = vulkan_shader->GetNativeShader();
     shader_stage_info.pName = "main";
 
     shader_stages.push_back(shader_stage_info);

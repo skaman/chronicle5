@@ -9,8 +9,6 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanShader) <= kShaderSize);
-
 VulkanShader::VulkanShader(const VulkanDevice &device,
                            const std::vector<uint8_t> &data)
     : device_(device.GetNativeDevice()) {

@@ -12,26 +12,17 @@
 namespace chr::renderer::internal {
 
 struct VulkanInstance : InstanceI {
-  explicit VulkanInstance(const InstanceInfo &info);
-  ~VulkanInstance();
+  explicit VulkanInstance(const InstanceCreateInfo &info);
+  ~VulkanInstance() override;
 
   VulkanInstance(const VulkanInstance &) = delete;
-  VulkanInstance(VulkanInstance &&other) noexcept
-      : instance_{other.instance_},
-        debug_messenger_{other.debug_messenger_},
-        required_extensions_{std::move(other.required_extensions_)},
-        required_layers_{std::move(other.required_layers_)} {
-    other.instance_ = VK_NULL_HANDLE;
-    other.debug_messenger_ = VK_NULL_HANDLE;
-    other.required_extensions_.clear();
-    other.required_layers_.clear();
-  }
+  VulkanInstance(VulkanInstance &&other) noexcept = delete;
 
   VulkanInstance &operator=(const VulkanInstance &) = delete;
   VulkanInstance &operator=(VulkanInstance &&other) = delete;
 
-  auto CreateSurface(const SurfaceInfo &info) -> Surface;
-  auto CreateDevice(const Surface &surface) -> Device;
+  auto CreateSurface(const SurfaceCreateInfo &info) -> Surface override;
+  auto CreateDevice(const Surface &surface) -> Device override;
 
   auto GetLayers() const -> std::vector<VkLayerProperties>;
   auto GetExtensions() const -> std::vector<VkExtensionProperties>;

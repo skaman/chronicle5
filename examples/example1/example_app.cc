@@ -41,27 +41,27 @@ auto ExampleApp::Init() -> void {
       compiler.Compile(triangle_shader_vert_data, "triangle_shader.vert",
                        chr::renderer::ShaderStage::kVertex);
 
-  auto& device = platform.GetDevice();
+  const auto& device = platform.GetDevice();
   const auto& swap_chain = platform.GetSwapChain();
 
-  auto swap_chain_extent = swap_chain.GetExtent();
-  auto swap_chain_format = swap_chain.GetFormat();
+  auto swap_chain_extent = swap_chain->GetExtent();
+  auto swap_chain_format = swap_chain->GetFormat();
 
-  auto fragment_shader = device.CreateShader(fragment_shader_compiled.data);
-  auto vertex_shader = device.CreateShader(vertex_shader_compiled.data);
+  auto fragment_shader = device->CreateShader(fragment_shader_compiled.data);
+  auto vertex_shader = device->CreateShader(vertex_shader_compiled.data);
 
-  auto render_pass = device.CreateRenderPass({.format = swap_chain_format});
+  auto render_pass = device->CreateRenderPass({.format = swap_chain_format});
 
-  auto swap_chain_image_view_count = swap_chain.GetImageViewCount();
+  auto swap_chain_image_view_count = swap_chain->GetImageViewCount();
   std::vector<chr::renderer::FrameBuffer> swap_chain_frame_buffers{};
   swap_chain_frame_buffers.reserve(swap_chain_image_view_count);
   for (auto i = 0; i < swap_chain_image_view_count; i++) {
-    auto frame_buffer = device.CreateFrameBuffer(
-        render_pass, {.attachments = {swap_chain.GetImageView(i)},
+    auto frame_buffer = device->CreateFrameBuffer(
+        render_pass, {.attachments = {swap_chain->GetImageView(i)},
                       .extent = swap_chain_extent});
   }
 
-  auto pipeline = device.CreatePipeline(
+  auto pipeline = device->CreatePipeline(
       render_pass,
       {.shader_set = {{chr::renderer::ShaderStage::kVertex, vertex_shader},
                       {chr::renderer::ShaderStage::kFragment, fragment_shader}},

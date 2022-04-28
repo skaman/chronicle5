@@ -14,20 +14,15 @@ namespace chr::renderer::internal {
 struct VulkanDevice;
 struct VulkanRenderPass;
 
-struct VulkanFrameBuffer {
+struct VulkanFrameBuffer : FrameBufferI {
   explicit VulkanFrameBuffer(const VulkanDevice &device,
                              const VulkanRenderPass &render_pass,
-                             const FrameBufferInfo &info);
+                             const FrameBufferCreateInfo &info);
 
   VulkanFrameBuffer(const VulkanFrameBuffer &) = delete;
+  VulkanFrameBuffer(VulkanFrameBuffer &&other) noexcept = delete;
 
-  VulkanFrameBuffer(VulkanFrameBuffer &&other) noexcept
-      : device_{other.device_}, frame_buffer_{other.frame_buffer_} {
-    other.device_ = VK_NULL_HANDLE;
-    other.frame_buffer_ = VK_NULL_HANDLE;
-  }
-
-  ~VulkanFrameBuffer();
+  ~VulkanFrameBuffer() override;
 
   VulkanFrameBuffer &operator=(const VulkanFrameBuffer &) = delete;
   VulkanFrameBuffer &operator=(VulkanFrameBuffer &&other) = delete;

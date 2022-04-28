@@ -9,12 +9,16 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kShaderSize = 16;
-}  // namespace internal
+//! @brief Shader module.
+struct ShaderI {
+  virtual ~ShaderI() = default;
+};
 
-using Shader = Handle<internal::kShaderSize>;
-using ShaderSet = std::unordered_map<ShaderStage, Shader&>;
+//! @brief Shared pointer to a ShaderI.
+using Shader = std::shared_ptr<ShaderI>;
+
+//! @brief A set of shaders (one for desired stage).
+using ShaderSet = std::unordered_map<ShaderStage, Shader>;
 
 }  // namespace chr::renderer
 

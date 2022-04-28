@@ -17,10 +17,8 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanInstance) <= kInstanceSize);
-
 static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT messageType,
               const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
               [[maybe_unused]] void *pUserData) {
@@ -61,7 +59,7 @@ static void DestroyDebugUtilsMessengerEXT(
   }
 }
 
-VulkanInstance::VulkanInstance(const InstanceInfo &info) {
+VulkanInstance::VulkanInstance(const InstanceCreateInfo &info) {
   log::Debug("Vulkan init");
 
   // prepare layers and extesions
@@ -150,16 +148,13 @@ VulkanInstance::~VulkanInstance() {
   }
 }
 
-auto VulkanInstance::CreateSurface(const SurfaceInfo &info) -> Surface {
-  Surface surface{};
-  surface.Emplace<VulkanSurface>(*this, info);
-  return surface;
+auto VulkanInstance::CreateSurface(const SurfaceCreateInfo &info) -> Surface {
+  return std::make_shared<VulkanSurface>(*this, info);
 }
 
 auto VulkanInstance::CreateDevice(const Surface &surface) -> Device {
-  Device device{};
-  device.Emplace<VulkanDevice>(*this, surface.Cast<VulkanSurface>());
-  return device;
+  return std::make_shared<VulkanDevice>(
+      *this, *static_cast<VulkanSurface *>(surface.get()));
 }
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
@@ -225,7 +220,7 @@ auto VulkanInstance::SetupDebugMessenger(DebugLevel level) -> void {
   createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-  createInfo.pfnUserCallback = debugCallback;
+  createInfo.pfnUserCallback = DebugCallback;
   createInfo.pUserData = nullptr;  // Optional
 
   if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr,

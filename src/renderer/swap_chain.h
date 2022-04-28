@@ -10,90 +10,37 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kSwapChainSize = 104;
-
-struct SwapChainI : entt::type_list<> {
-  template <typename Base>
-  struct type : Base {
-    auto GetExtent() const -> glm::u32vec2 {
-      return this->template invoke<0>(*this);
-    }
-
-    auto GetFormat() const -> Format { return this->template invoke<1>(*this); }
-
-    auto GetImageViewCount() const -> uint32_t {
-      return this->template invoke<2>(*this);
-    }
-    auto GetImageView(uint32_t index) const -> const ImageView& {
-      return this->template invoke<3>(*this, index);
-    }
-  };
-
-  template <typename Type>
-  using impl = entt::value_list<&Type::GetExtent, &Type::GetFormat,
-                                &Type::GetImageViewCount, &Type::GetImageView>;
+//! @brief Informations used to create a new swapchain.
+struct SwapChainCreateInfo {
+  //! @brief Dimensions of the swapchain image (normally is the frame buffer
+  //!        size).
+  glm::u32vec2 image_size{};
 };
 
-template <typename T>
-concept ConceptSwapChain = std::is_base_of_v<SwapChainI, T>;
+//! @brief Swapchain provides the ability to present rendering results to a
+//!        surface.
+struct SwapChainI {
+  virtual ~SwapChainI() = default;
 
-struct VulkanInstance;
-struct VulkanDevice;
-}  // namespace internal
+  //! @brief Get the image extent.
+  //! @return Image extent.
+  virtual auto GetExtent() const -> glm::u32vec2 = 0;
 
-struct SwapChainInfo {
-  uint32_t frame_buffer_width;
-  uint32_t frame_buffer_height;
+  //! @brief The the image format.
+  //! @return Image format.
+  virtual auto GetFormat() const -> Format = 0;
+
+  //! @brief Get the number of image view available in the spwapchain.
+  //! @return Image view count.
+  virtual auto GetImageViewCount() const -> uint32_t = 0;
+
+  //! @brief Get an image view.
+  //! @param index Image view index.
+  //! @return Image view.
+  virtual auto GetImageView(uint32_t index) const -> ImageView = 0;
 };
 
-struct SwapChain {
-  //! @brief The copy constructor is not supported.
-  SwapChain(const SwapChain&) = delete;
-
-  //! @brief Move constructor.
-  SwapChain(SwapChain&& other) noexcept
-      : swapchain_(std::move(other.swapchain_)) {}
-
-  ~SwapChain() = default;
-
-  //! @brief The copy assignment operator is not supported.
-  SwapChain& operator=(const SwapChain&) = delete;
-
-  //! @brief Move assignment operator.
-  SwapChain& operator=(SwapChain&& other) noexcept {
-    std::swap(swapchain_, other.swapchain_);
-    return *this;
-  }
-
-  auto GetExtent() const -> glm::u32vec2 { return swapchain_->GetExtent(); }
-  auto GetFormat() const -> Format { return swapchain_->GetFormat(); }
-
-  auto GetImageViewCount() const -> uint32_t {
-    return swapchain_->GetImageViewCount();
-  }
-  auto GetImageView(uint32_t index) const -> const ImageView& {
-    return swapchain_->GetImageView(index);
-  }
-
- private:
-  explicit SwapChain() = default;
-
-  template <internal::ConceptSwapChain Type>
-  auto Cast() const -> const Type& {
-    return *static_cast<const Type*>(swapchain_.data());
-  }
-
-  template <internal::ConceptSwapChain Type, typename... Args>
-  auto Emplace(Args&&... args) -> void {
-    swapchain_.emplace<Type>(std::forward<Args>(args)...);
-  }
-
-  entt::basic_poly<internal::SwapChainI, internal::kSwapChainSize> swapchain_{};
-
-  friend struct internal::VulkanInstance;
-  friend struct internal::VulkanDevice;
-};
+using SwapChain = std::shared_ptr<SwapChainI>;
 
 }  // namespace chr::renderer
 

@@ -11,16 +11,25 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kFrameBufferSize = 16;
-}  // namespace internal
+//! @brief Informations used to create a new frame buffer.
+struct FrameBufferCreateInfo {
+  //! @brief Vector of image views, each of which will be used as the
+  //!        corrisponding attachment in a render pass instance.
+  std::vector<ImageView> attachments{};
 
-struct FrameBufferInfo {
-  std::vector<std::reference_wrapper<const ImageView>> attachments{};
+  //! @brief Dimensions of the frame buffer.
   glm::u32vec2 extent{};
 };
 
-using FrameBuffer = Handle<internal::kFrameBufferSize>;
+//! @brief Render passes operate in conjunction with framebuffers. Framebuffers
+//!        represent a collection of specific attachments that a render pass
+//!        instance uses.
+struct FrameBufferI {
+  virtual ~FrameBufferI() = default;
+};
+
+//! @brief Shared pointer to a FrameBufferI.
+using FrameBuffer = std::shared_ptr<FrameBufferI>;
 
 }  // namespace chr::renderer
 

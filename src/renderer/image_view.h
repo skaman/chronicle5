@@ -9,11 +9,14 @@
 
 namespace chr::renderer {
 
-namespace internal {
-constexpr size_t kImageViewSize = 16;
-}  // namespace internal
+//! @brief Image views representing contiguous ranges of the image subresources
+//!        and containing additional metadata are used for that purpose.
+struct ImageViewI {
+  virtual ~ImageViewI() = default;
+};
 
-using ImageView = Handle<internal::kImageViewSize>;
+//! @brief Shared pointer to an ImageViewI.
+using ImageView = std::shared_ptr<ImageViewI>;
 
 }  // namespace chr::renderer
 

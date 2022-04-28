@@ -13,8 +13,6 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanCommandBuffer) <= kCommandBufferSize);
-
 VulkanCommandBuffer::VulkanCommandBuffer(const VulkanDevice &device,
                                          const VulkanCommandPool &command_pool)
     : device_(device.GetNativeDevice()) {
@@ -55,17 +53,23 @@ auto VulkanCommandBuffer::BeginRenderPass(const RenderPass &render_pass,
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass =
-      render_pass.Cast<VulkanRenderPass>().GetNativeRenderPass();
+      static_cast<VulkanRenderPass *>(render_pass.get())->GetNativeRenderPass();
   renderPassInfo.framebuffer =
-      frame_buffer.Cast<VulkanFrameBuffer>().GetNativeFrameBuffer();
+      static_cast<VulkanFrameBuffer *>(frame_buffer.get())
+          ->GetNativeFrameBuffer();
   renderPassInfo.renderArea.offset = {info.render_area_offset.x,
                                       info.render_area_offset.y};
   renderPassInfo.renderArea.extent = {info.render_area_extent.x,
                                       info.render_area_extent.y};
-  VkClearValue clearColor = {{{info.clear_color.r, info.clear_color.g,
-                               info.clear_color.b, info.clear_color.a}}};
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
+
+  std::vector<VkClearValue> clear_values;
+  clear_values.reserve(info.clear_colors.size());
+  for (auto &clear_color : info.clear_colors) {
+    clear_values.push_back(
+        {clear_color.r, clear_color.g, clear_color.b, clear_color.a});
+  }
+  renderPassInfo.clearValueCount = static_cast<uint32_t>(clear_values.size());
+  renderPassInfo.pClearValues = clear_values.data();
 
   vkCmdBeginRenderPass(command_buffer_, &renderPassInfo,
                        VK_SUBPASS_CONTENTS_INLINE);
@@ -76,8 +80,9 @@ auto VulkanCommandBuffer::EndRenderPass() -> void {
 }
 
 auto VulkanCommandBuffer::BindPipeline(const Pipeline &pipeline) -> void {
-  vkCmdBindPipeline(command_buffer_, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    pipeline.Cast<VulkanPipeline>().GetNativePipeline());
+  vkCmdBindPipeline(
+      command_buffer_, VK_PIPELINE_BIND_POINT_GRAPHICS,
+      static_cast<VulkanPipeline *>(pipeline.get())->GetNativePipeline());
 }
 
 auto VulkanCommandBuffer::Draw(const DrawInfo &info) -> void {

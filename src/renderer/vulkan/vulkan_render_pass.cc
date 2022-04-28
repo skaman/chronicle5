@@ -10,9 +10,8 @@
 
 namespace chr::renderer::internal {
 
-static_assert(sizeof(VulkanRenderPass) <= kRenderPassSize);
-
-VulkanRenderPass::VulkanRenderPass(const VulkanDevice &device, const RenderPassInfo& info)
+VulkanRenderPass::VulkanRenderPass(const VulkanDevice& device,
+                                   const RenderPassCreateInfo& info)
     : device_(device.GetNativeDevice()) {
   VkAttachmentDescription color_attachment{};
   color_attachment.format = GetVulkanFormat(info.format);
