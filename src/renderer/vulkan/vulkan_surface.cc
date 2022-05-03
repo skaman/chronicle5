@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_instance.h"
+#include "vulkan_utils.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -22,29 +23,32 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
   if (info.custom_init) {
     surface_ = static_cast<VkSurfaceKHR>(info.custom_init(instance_));
     if (surface_ == VK_NULL_HANDLE) {
-      throw RendererException("Failed to create window surface");
+      throw RendererException(Error::kInitializationFailed,
+                              "Failed to create window surface");
     }
     return;
   }
 
 #if defined(CHR_PLATFORM_WINDOWS)
-  VkWin32SurfaceCreateInfoKHR createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-  createInfo.hwnd = static_cast<HWND>(info.hwnd);
-  createInfo.hinstance = GetModuleHandle(nullptr);
-  if (vkCreateWin32SurfaceKHR(instance_, &createInfo, nullptr, &surface_) !=
-      VK_SUCCESS) {
+  VkWin32SurfaceCreateInfoKHR create_info{};
+  create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+  create_info.hwnd = static_cast<HWND>(info.hwnd);
+  create_info.hinstance = GetModuleHandle(nullptr);
+  if (auto result =
+          vkCreateWin32SurfaceKHR(instance_, &create_info, nullptr, &surface_);
+      result != VK_SUCCESS) {
     surface_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create window surface");
+    throw VulkanException(result, "Failed to create window surface");
   }
 #elif defined(CHR_PLATFORM_MACOS)
-  VkMacOSSurfaceCreateInfoMVK createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
-  createInfo.pView = surfaceInfo.hwnd;
-  if (vkCreateMacOSSurfaceMVK(instance_, &createInfo, nullptr, &surface_) !=
-      VK_SUCCESS) {
+  VkMacOSSurfaceCreateInfoMVK create_info{};
+  create_info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
+  create_info.pView = surfaceInfo.hwnd;
+  if (auto result =
+          vkCreateMacOSSurfaceMVK(instance_, &create_info, nullptr, &surface_);
+      result != VK_SUCCESS) {
     surface_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create window surface");
+    throw VulkanException(result, "Failed to create window surface");
   }
 #else
 #error "Unsupported platform"

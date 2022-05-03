@@ -5,7 +5,7 @@
 #ifndef CHR_RENDERER_ENUMS_H_
 #define CHR_RENDERER_ENUMS_H_
 
-#include "common.h"
+#include "pch.h"
 
 namespace chr::renderer {
 
@@ -30,6 +30,107 @@ enum class ShaderStage {
 
   kAllGraphics,  //!< All graphics stages.
   kAll           //!< All stages.
+};
+
+//! @brief Status about a fence.
+enum class FenceStatus {
+  kSignaled,    //!< Fence is signaled.
+  kUnsignaled,  //!< Fence is unsignaled.
+  kUnkwown      //!< Fence is an unkwnown state (ex. device lost).
+};
+
+//! @brief Renderer error.
+enum class Error {
+  //! @brief A host memory allocation has failed.
+  kOutOfHostMemory,
+
+  //! @brief A device memory allocation has failed.
+  kOutOfDeviceMemory,
+
+  //! @brief Initialization of an object could not be completed for
+  //!        implementation-specific reasons.
+  kInitializationFailed,
+
+  //! @brief The logical or physical device has been lost.
+  kDeviceLost,
+
+  //! @brief Mapping of a memory object has failed.
+  kMemoryMapFailed,
+
+  //! @brief A requested layer is not present or could not be loaded.
+  kLayerNotPresent,
+
+  //! @brief A requested extension is not supported.
+  kExtensionNotPresent,
+
+  //! @brief A requested feature is not supported.
+  kFeatureNotPresent,
+
+  //! @brief The requested version of Vulkan is not supported by the driver or
+  //!        is otherwise incompatible for implementation-specific reasons.
+  kIncompatibleDriver,
+
+  //! @brief Too many objects of the type have already been created.
+  kTooManyObjects,
+
+  //! @brief A requested format is not supported on this device.
+  kFormatNotSupported,
+
+  //! @brief A pool allocation has failed due to fragmentation of the pool's
+  //!        memory. This must only be returned if no attempt to allocate host
+  //!        or device memory was made to accommodate the new allocation.
+  kFragmentedPool,
+
+  //! @brief A pool memory allocation has failed. This must only be returned if
+  //!        no attempt to allocate host or device memory was made to
+  //!        accommodate the new allocation.
+  kOutOfPoolMemory,
+
+  //! @brief An external handle is not a valid handle of the specified type.
+  kInvalidExternalHandle,
+
+  //! @brief A descriptor pool creation has failed due to fragmentation.
+  kFragmentation,
+
+  //! @brief A buffer creation or memory allocation failed because the requested
+  //!        address is not available.
+  kInvalidOpaqueCaptureAddress,
+
+  //! @brief A surface is no longer available.
+  kSurfaceLostKhr,
+
+  //! @brief The requested window is already in use by another API in a manner
+  //!        which prevents it from being used again.
+  kNativeWindowInUse,
+
+  //! @brief A surface has changed in such a way that it is no longer compatible
+  //!        with the swapchain, and further presentation requests using the
+  //!        swapchain will fail.
+  kOutOfDate,
+
+  //! @brief The display used by a swapchain does not use the same presentable
+  //!        image layout, or is incompatible in a way that prevents sharing an
+  //!        image.
+  kIncompatibleDisplayKhr,
+
+  //! @brief Cannot validate given data structure.
+  kValidationFailedExt,
+
+  //! @brief One or more shaders failed to compile or link.
+  kInvalidShader,
+
+  //! @brief Invalid DRM format.
+  kInvalidDrmFormat,
+
+  //! @brief Operation not permitted.
+  kNotPermitted,
+
+  //! @brief An operation on a swapchain created in exclusive full screen mode
+  //!        failed as it did not have exlusive full-screen access.
+  kFullScreenExclusiveModeLost,
+
+  //! @brief Unknown error
+  kUnknown,
 };
 
 //! @brief Image formats that can be passed to, and may be returned from
@@ -718,6 +819,16 @@ enum class Format {
   //!        component in bytes 24..31.
   kR64G64B64A64SFloat,
 };
+
+namespace internal {
+auto GetErrorDescriptionsMap()
+    -> std::unordered_map<chr::renderer::Error, std::string_view>;
+}
+
+//! @brief Get an extended description for an error.
+//! @param error The error.
+//! @return The extended description.
+auto GetErrorDescription(Error error) -> std::string_view;
 
 }  // namespace chr::renderer
 

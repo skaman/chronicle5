@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
@@ -16,10 +17,12 @@ VulkanShader::VulkanShader(const VulkanDevice &device,
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = data.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(data.data());
-  if (vkCreateShaderModule(device_, &createInfo, nullptr, &shader_) !=
-      VK_SUCCESS) {
-    device_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create shader module");
+
+  if (auto result =
+          vkCreateShaderModule(device_, &createInfo, nullptr, &shader_);
+      result != VK_SUCCESS) {
+    shader_ = VK_NULL_HANDLE;
+    throw VulkanException(result, "Failed to create shader module");
   }
 }
 

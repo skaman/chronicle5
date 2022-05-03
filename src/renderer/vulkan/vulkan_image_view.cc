@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
@@ -27,10 +28,11 @@ VulkanImageView::VulkanImageView(const VulkanDevice &device,
   create_info.subresourceRange.baseArrayLayer = 0;
   create_info.subresourceRange.layerCount = 1;
 
-  if (vkCreateImageView(device_, &create_info, nullptr, &image_view_) !=
-      VK_SUCCESS) {
+  if (auto result =
+          vkCreateImageView(device_, &create_info, nullptr, &image_view_);
+      result != VK_SUCCESS) {
     image_view_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create image view");
+    throw VulkanException(result, "Failed to create image view");
   }
 }
 

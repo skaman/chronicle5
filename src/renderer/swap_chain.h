@@ -6,7 +6,9 @@
 #define CHR_RENDERER_SWAP_CHAIN_H_
 
 #include "common.h"
+#include "fence.h"
 #include "image_view.h"
+#include "semaphore.h"
 
 namespace chr::renderer {
 
@@ -38,6 +40,12 @@ struct SwapChainI {
   //! @param index Image view index.
   //! @return Image view.
   virtual auto GetImageView(uint32_t index) const -> ImageView = 0;
+
+  //! @brief Acquire an available presentable image to use.
+  //! @param semaphore Semaphore to signal or nullptr.
+  //! @param fence Fence to signal or nullptr.
+  //! @return Index of acquired image.
+  virtual auto AcquireNextImage(Semaphore semaphore, Fence fence) -> uint32_t = 0;
 };
 
 using SwapChain = std::shared_ptr<SwapChainI>;

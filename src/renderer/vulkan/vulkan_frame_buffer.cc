@@ -8,6 +8,7 @@
 #include "vulkan_device.h"
 #include "vulkan_image_view.h"
 #include "vulkan_render_pass.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
@@ -32,10 +33,11 @@ VulkanFrameBuffer::VulkanFrameBuffer(const VulkanDevice &device,
   frame_buffer_info.height = info.extent.y;
   frame_buffer_info.layers = 1;
 
-  if (vkCreateFramebuffer(device_, &frame_buffer_info, nullptr,
-                          &frame_buffer_) != VK_SUCCESS) {
+  if (auto result = vkCreateFramebuffer(device_, &frame_buffer_info, nullptr,
+                                        &frame_buffer_);
+      result != VK_SUCCESS) {
     frame_buffer_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create framebuffer");
+    throw VulkanException(result, "Failed to create framebuffer");
   }
 }
 

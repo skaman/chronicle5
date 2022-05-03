@@ -13,7 +13,15 @@ namespace chr::renderer {
 
 //! @brief Exception that indicate an error from the video driver.
 struct RendererException : public std::runtime_error {
-  using std::runtime_error ::runtime_error;
+  explicit RendererException(Error error, const std::string_view message)
+      : std::runtime_error(GetErrorMessage(error, message)) {}
+
+ private:
+  static auto GetErrorMessage(Error error, const std::string_view message)
+      -> std::string {
+    return fmt::format("{} (code = {}, message = {})", message,
+                       static_cast<int>(error), GetErrorDescription(error));
+  }
 };
 
 }  // namespace chr::renderer

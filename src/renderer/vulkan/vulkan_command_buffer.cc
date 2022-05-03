@@ -10,6 +10,7 @@
 #include "vulkan_frame_buffer.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_render_pass.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
@@ -22,10 +23,11 @@ VulkanCommandBuffer::VulkanCommandBuffer(const VulkanDevice &device,
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = 1;
 
-  if (vkAllocateCommandBuffers(device_, &allocInfo, &command_buffer_) !=
-      VK_SUCCESS) {
+  if (auto result =
+          vkAllocateCommandBuffers(device_, &allocInfo, &command_buffer_);
+      result != VK_SUCCESS) {
     command_buffer_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to allocate command buffers");
+    throw VulkanException(result, "Failed to allocate command buffers");
   }
 }
 
@@ -35,14 +37,15 @@ auto VulkanCommandBuffer::Begin() -> void {
   begin_info.flags = 0;                   // Optional
   begin_info.pInheritanceInfo = nullptr;  // Optional
 
-  if (vkBeginCommandBuffer(command_buffer_, &begin_info) != VK_SUCCESS) {
-    throw RendererException("Failed to begin recording command buffer");
+  if (auto result = vkBeginCommandBuffer(command_buffer_, &begin_info);
+      result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to begin recording command buffer");
   }
 }
 
 auto VulkanCommandBuffer::End() -> void {
-  if (vkEndCommandBuffer(command_buffer_) != VK_SUCCESS) {
-    throw RendererException("Failed to record command buffer");
+  if (auto result = vkEndCommandBuffer(command_buffer_); result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to record command buffer");
   }
 }
 
@@ -87,6 +90,10 @@ auto VulkanCommandBuffer::BindPipeline(const Pipeline &pipeline) -> void {
 
 auto VulkanCommandBuffer::Draw(const DrawInfo &info) -> void {
   vkCmdDraw(command_buffer_, info.vertex_count, 1, info.first_vertex, 0);
+}
+
+auto VulkanCommandBuffer::Reset() -> void {
+  vkResetCommandBuffer(command_buffer_, 0);
 }
 
 }  // namespace chr::renderer::internal

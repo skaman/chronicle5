@@ -53,6 +53,8 @@ struct VulkanSwapChain : SwapChainI {
   auto CreateImageViews(const VulkanDevice &device, uint32_t image_count,
                         VkFormat image_format) -> void;
 
+  auto AcquireNextImage(Semaphore semaphore, Fence fence) -> uint32_t override;
+
   VkDevice device_{VK_NULL_HANDLE};
   VkSurfaceKHR surface_{VK_NULL_HANDLE};
   VkSwapchainKHR swapchain_{VK_NULL_HANDLE};

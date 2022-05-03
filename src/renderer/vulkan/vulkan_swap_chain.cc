@@ -6,7 +6,9 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_fence.h"
 #include "vulkan_image_view.h"
+#include "vulkan_semaphore.h"
 #include "vulkan_surface.h"
 #include "vulkan_utils.h"
 
@@ -62,9 +64,10 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
   create_info.clipped = VK_TRUE;
   create_info.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(device_, &create_info, nullptr, &swapchain_) !=
-      VK_SUCCESS) {
-    throw RendererException("Failed to create swap chain");
+  if (auto result =
+          vkCreateSwapchainKHR(device_, &create_info, nullptr, &swapchain_);
+      result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to create swap chain");
   }
 
   try {
@@ -135,17 +138,18 @@ auto VulkanSwapChain::ChooseSwapExtent(
 }
 
 auto VulkanSwapChain::CreateSwapChainImages(uint32_t image_count) -> void {
-  if (vkGetSwapchainImagesKHR(device_, swapchain_, &image_count, nullptr) !=
-      VK_SUCCESS) {
-    throw RendererException("Failed to create swap chain images");
+  if (auto result =
+          vkGetSwapchainImagesKHR(device_, swapchain_, &image_count, nullptr);
+      result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to create swap chain images");
   }
 
   images_.resize(image_count);
-
-  if (vkGetSwapchainImagesKHR(device_, swapchain_, &image_count,
-                              images_.data()) != VK_SUCCESS) {
+  if (auto result = vkGetSwapchainImagesKHR(device_, swapchain_, &image_count,
+                                            images_.data());
+      result != VK_SUCCESS) {
     images_.clear();
-    throw RendererException("Failed to create swap chain images");
+    throw VulkanException(result, "Failed to create swap chain images");
   }
 }
 
@@ -162,32 +166,26 @@ auto VulkanSwapChain::CreateImageViews(const VulkanDevice &device,
       throw;
     }
   }
+}
 
-  // for (auto i = 0; i < image_count; i++) {
-  //   VkImageViewCreateInfo create_info{};
-  //   create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  //   create_info.image = swapchain_images_[i];
-  //   create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  //   create_info.format = swap_chain_image_format;
-  //   create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-  //   create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  //   create_info.subresourceRange.baseMipLevel = 0;
-  //   create_info.subresourceRange.levelCount = 1;
-  //   create_info.subresourceRange.baseArrayLayer = 0;
-  //   create_info.subresourceRange.layerCount = 1;
-  //
-  //   if (vkCreateImageView(device_, &create_info, nullptr,
-  //                         &swapchain_image_views_[i]) != VK_SUCCESS) {
-  //     for (auto j = 0; j < i - 1; j++) {
-  //       vkDestroyImageView(device_, swapchain_image_views_[j], nullptr);
-  //     }
-  //     swapchain_image_views_.clear();
-  //     throw RendererException("Failed to create image views");
-  //   }
-  // }
+auto VulkanSwapChain::AcquireNextImage(Semaphore semaphore, Fence fence)
+    -> uint32_t {
+  VkSemaphore vulkan_semaphore =
+      semaphore.get() != nullptr
+          ? static_cast<VulkanSemaphore *>(semaphore.get())
+                ->GetNativeSemaphore()
+          : VK_NULL_HANDLE;
+
+  VkFence vulkan_fence =
+      fence.get() != nullptr
+          ? static_cast<VulkanFence *>(fence.get())->GetNativeFence()
+          : VK_NULL_HANDLE;
+
+  uint32_t image_index;
+  vkAcquireNextImageKHR(device_, swapchain_, UINT64_MAX, vulkan_semaphore,
+                        vulkan_fence, &image_index);
+
+  return image_index;
 }
 
 }  // namespace chr::renderer::internal

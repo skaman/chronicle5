@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "vulkan_device.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
@@ -19,10 +20,11 @@ VulkanCommandPool::VulkanCommandPool(const VulkanDevice &device)
   poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
   poolInfo.queueFamilyIndex = queueFamilyIndices.graphics_family.value();
 
-  if (vkCreateCommandPool(device_, &poolInfo, nullptr, &command_pool_) !=
-      VK_SUCCESS) {
+  if (auto result =
+          vkCreateCommandPool(device_, &poolInfo, nullptr, &command_pool_);
+      result != VK_SUCCESS) {
     command_pool_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create command pool");
+    throw VulkanException(result, "Failed to create command pool");
   }
 }
 

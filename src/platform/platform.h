@@ -21,8 +21,8 @@ template <typename T>
 concept ConceptEvent = std::is_base_of_v<Event, T>;
 
 struct Platform {
-  explicit Platform(renderer::Instance &instance, renderer::Surface &surface,
-                    renderer::Device &device, renderer::SwapChain &swapchain)
+  explicit Platform(renderer::Instance instance, renderer::Surface surface,
+                    renderer::Device device, renderer::SwapChain swapchain)
       : instance_{instance},
         surface_{surface},
         device_{device},
@@ -41,25 +41,25 @@ struct Platform {
 
   auto Update() const -> void { app_dispatcher_.update(); }
 
-  [[nodiscard]] auto GetInstance() const -> renderer::Instance & {
+  [[nodiscard]] auto GetInstance() const -> renderer::Instance {
     return instance_;
   }
 
-  [[nodiscard]] auto GetSurface() const -> renderer::Surface & {
+  [[nodiscard]] auto GetSurface() const -> renderer::Surface {
     return surface_;
   }
 
-  [[nodiscard]] auto GetDevice() const -> renderer::Device & { return device_; }
+  [[nodiscard]] auto GetDevice() const -> renderer::Device { return device_; }
 
-  [[nodiscard]] auto GetSwapChain() const -> renderer::SwapChain & {
+  [[nodiscard]] auto GetSwapChain() const -> renderer::SwapChain {
     return swapchain_;
   }
 
  private:
-  renderer::Instance &instance_;
-  renderer::Surface &surface_;
-  renderer::Device &device_;
-  renderer::SwapChain &swapchain_;
+  renderer::Instance instance_;
+  renderer::Surface surface_;
+  renderer::Device device_;
+  renderer::SwapChain swapchain_;
 
   entt::dispatcher app_dispatcher_{};
   entt::dispatcher platform_dispatcher_{};

@@ -7,6 +7,7 @@
 #include "common.h"
 #include "vulkan_device.h"
 #include "vulkan_surface.h"
+#include "vulkan_utils.h"
 
 #if defined(CHR_PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -88,8 +89,10 @@ VulkanInstance::VulkanInstance(const InstanceCreateInfo &info) {
 
   // get and log vulkan driver version
   uint32_t version{0};
-  if (vkEnumerateInstanceVersion(&version) != VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan instance version");
+  if (auto result = vkEnumerateInstanceVersion(&version);
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan instance version");
   }
 
   log::Info("Vulkan version: {}.{}.{} (variant {})",
@@ -125,8 +128,9 @@ VulkanInstance::VulkanInstance(const InstanceCreateInfo &info) {
   create_info.ppEnabledLayerNames = required_layers_.data();
 
   // initialize vulkan
-  if (vkCreateInstance(&create_info, nullptr, &instance_) != VK_SUCCESS) {
-    throw RendererException("Failed to create Vulkan instance");
+  if (auto result = vkCreateInstance(&create_info, nullptr, &instance_);
+      result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to create Vulkan instance");
   }
 
   try {
@@ -159,8 +163,10 @@ auto VulkanInstance::CreateDevice(const Surface &surface) -> Device {
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
   uint32_t count;
-  if (vkEnumerateInstanceLayerProperties(&count, nullptr) != VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan layer properties");
+  if (auto result = vkEnumerateInstanceLayerProperties(&count, nullptr);
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan layer properties");
   }
 
   if (count == 0) {
@@ -168,8 +174,10 @@ auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
   }
 
   std::vector<VkLayerProperties> layers(count);
-  if (vkEnumerateInstanceLayerProperties(&count, layers.data()) != VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan layer properties");
+  if (auto result = vkEnumerateInstanceLayerProperties(&count, layers.data());
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan layer properties");
   }
 
   return layers;
@@ -178,9 +186,11 @@ auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
 auto VulkanInstance::GetExtensions() const
     -> std::vector<VkExtensionProperties> {
   uint32_t count = 0;
-  if (vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr) !=
-      VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan extension properties");
+  if (auto result =
+          vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan extension properties");
   }
 
   if (count == 0) {
@@ -188,9 +198,11 @@ auto VulkanInstance::GetExtensions() const
   }
 
   std::vector<VkExtensionProperties> extensions(count);
-  if (vkEnumerateInstanceExtensionProperties(nullptr, &count,
-                                             extensions.data()) != VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan extension properties");
+  if (auto result = vkEnumerateInstanceExtensionProperties(nullptr, &count,
+                                                           extensions.data());
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan extension properties");
   }
 
   return extensions;
@@ -223,9 +235,10 @@ auto VulkanInstance::SetupDebugMessenger(DebugLevel level) -> void {
   createInfo.pfnUserCallback = DebugCallback;
   createInfo.pUserData = nullptr;  // Optional
 
-  if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr,
-                                   &debug_messenger_) != VK_SUCCESS) {
-    throw RendererException("Failed to set up debug messenger");
+  if (auto result = CreateDebugUtilsMessengerEXT(instance_, &createInfo,
+                                                 nullptr, &debug_messenger_);
+      result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to set up debug messenger");
   }
 }
 
@@ -245,14 +258,15 @@ auto VulkanInstance::ValidateLayers() const -> void {
   for (const auto &layer : required_layers_) {
     bool found = false;
     for (const auto &available_layer : available_layers) {
-      if (strcmp(layer, available_layer.layerName) == 0) {
+      if (std::strcmp(layer, available_layer.layerName) == 0) {
         found = true;
         break;
       }
     }
 
     if (!found) {
-      throw RendererException(fmt::format("Layer {} not found", layer));
+      throw RendererException(Error::kLayerNotPresent,
+                              fmt::format("Layer {} not found", layer));
     }
   }
 }
@@ -273,14 +287,15 @@ auto VulkanInstance::ValidateExtensions() const -> void {
   for (const auto &extension : required_extensions_) {
     bool found = false;
     for (const auto &available_extension : available_extensions) {
-      if (strcmp(extension, available_extension.extensionName) == 0) {
+      if (std::strcmp(extension, available_extension.extensionName) == 0) {
         found = true;
         break;
       }
     }
 
     if (!found) {
-      throw RendererException(fmt::format("Extension {} not found", extension));
+      throw RendererException(Error::kExtensionNotPresent,
+                              fmt::format("Extension {} not found", extension));
     }
   }
 }

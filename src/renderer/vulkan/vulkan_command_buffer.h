@@ -32,6 +32,7 @@ struct VulkanCommandBuffer : CommandBufferI {
   auto EndRenderPass() -> void override;
   auto BindPipeline(const Pipeline &pipeline) -> void override;
   auto Draw(const DrawInfo &info) -> void override;
+  auto Reset() -> void override;
 
   auto GetNativeCommandBuffer() const -> VkCommandBuffer {
     return command_buffer_;

@@ -62,6 +62,9 @@ struct CommandBufferI {
   //! @brief Record a non-indexed draw call.
   //! @param info Informations use to record a draw command.
   virtual auto Draw(const DrawInfo& info) -> void = 0;
+
+  //! @brief Reset command buffer.
+  virtual auto Reset() -> void = 0;
 };
 
 //! @brief Shared pointer to a CommandBufferI.

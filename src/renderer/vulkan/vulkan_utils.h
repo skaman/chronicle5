@@ -5,15 +5,20 @@
 #ifndef CHR_RENDERER_VULKAN_VULKAN_UTILS_H_
 #define CHR_RENDERER_VULKAN_VULKAN_UTILS_H_
 
-#include "enums.h"
-#include "pch.h"
+#include "common.h"
 #include "vulkan_pch.h"
 
 namespace chr::renderer::internal {
 
+auto GetLocalError(VkResult result) -> Error;
 auto GetVulkanFormat(Format format) -> VkFormat;
 auto GetLocalFormat(VkFormat format) -> Format;
 auto GetShaderStageFlagBits(ShaderStage stage) -> VkShaderStageFlagBits;
+
+struct VulkanException : RendererException {
+  explicit VulkanException(VkResult result, const std::string_view message)
+      : RendererException{GetLocalError(result), message} {}
+};
 
 }  // namespace chr::renderer::internal
 

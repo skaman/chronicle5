@@ -8,6 +8,43 @@
 
 namespace chr::renderer::internal {
 
+auto GetLocalToVulkanErrorMap() -> std::unordered_map<Error, VkResult> {
+  return {
+      {Error::kOutOfHostMemory, VK_ERROR_OUT_OF_HOST_MEMORY},
+      {Error::kOutOfDeviceMemory, VK_ERROR_OUT_OF_DEVICE_MEMORY},
+      {Error::kInitializationFailed, VK_ERROR_INITIALIZATION_FAILED},
+      {Error::kDeviceLost, VK_ERROR_DEVICE_LOST},
+      {Error::kMemoryMapFailed, VK_ERROR_MEMORY_MAP_FAILED},
+      {Error::kLayerNotPresent, VK_ERROR_LAYER_NOT_PRESENT},
+      {Error::kExtensionNotPresent, VK_ERROR_EXTENSION_NOT_PRESENT},
+      {Error::kFeatureNotPresent, VK_ERROR_FEATURE_NOT_PRESENT},
+      {Error::kIncompatibleDriver, VK_ERROR_INCOMPATIBLE_DRIVER},
+      {Error::kTooManyObjects, VK_ERROR_TOO_MANY_OBJECTS},
+      {Error::kFormatNotSupported, VK_ERROR_FORMAT_NOT_SUPPORTED},
+      {Error::kFragmentedPool, VK_ERROR_FRAGMENTED_POOL},
+      {Error::kOutOfPoolMemory, VK_ERROR_OUT_OF_POOL_MEMORY},
+      {Error::kInvalidExternalHandle, VK_ERROR_INVALID_EXTERNAL_HANDLE},
+      {Error::kFragmentation, VK_ERROR_FRAGMENTATION},
+      {Error::kInvalidOpaqueCaptureAddress,
+       VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS},
+      {Error::kSurfaceLostKhr, VK_ERROR_SURFACE_LOST_KHR},
+      {Error::kNativeWindowInUse, VK_ERROR_NATIVE_WINDOW_IN_USE_KHR},
+      {Error::kOutOfDate, VK_ERROR_OUT_OF_DATE_KHR},
+      {Error::kIncompatibleDisplayKhr, VK_ERROR_INCOMPATIBLE_DISPLAY_KHR},
+      {Error::kValidationFailedExt, VK_ERROR_VALIDATION_FAILED_EXT},
+      {Error::kInvalidShader, VK_ERROR_INVALID_SHADER_NV},
+      {Error::kInvalidDrmFormat,
+       VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT},
+      {Error::kNotPermitted, VK_ERROR_NOT_PERMITTED_KHR},
+      {Error::kFullScreenExclusiveModeLost,
+       VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT}};
+}
+
+auto GetVulkanToLocalErrorMap() -> std::unordered_map<VkResult, Error> {
+  auto local_to_vulkan_map = GetLocalToVulkanErrorMap();
+  return utils::InverseMap<Error, VkResult>(local_to_vulkan_map);
+}
+
 auto GetLocalToVulkanFormatMap() -> std::unordered_map<Format, VkFormat> {
   return {
       // 8 bit
@@ -166,11 +203,22 @@ auto GetVulkanToLocalFormatMap() -> std::unordered_map<VkFormat, Format> {
   return utils::InverseMap<Format, VkFormat>(local_to_vulkan_map);
 }
 
+static const std::unordered_map<VkResult, Error> kVulkanToLocalErrorMap =
+    GetVulkanToLocalErrorMap();
+
 static const std::unordered_map<Format, VkFormat> kLocalToVulkanFormatMap =
     GetLocalToVulkanFormatMap();
 
 static const std::unordered_map<VkFormat, Format> kVulkanToLocalFormatMap =
     GetVulkanToLocalFormatMap();
+
+auto GetLocalError(VkResult result) -> Error {
+  if (!kVulkanToLocalErrorMap.contains(result)) {
+    return Error::kUnknown;
+  }
+
+  return kVulkanToLocalErrorMap.at(result);
+}
 
 auto GetVulkanFormat(Format format) -> VkFormat {
   if (!kLocalToVulkanFormatMap.contains(format)) {

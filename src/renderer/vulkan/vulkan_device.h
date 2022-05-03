@@ -53,9 +53,15 @@ struct VulkanDevice : DeviceI {
   auto CreateFrameBuffer(const RenderPass &render_pass,
                          const FrameBufferCreateInfo &info) const
       -> FrameBuffer override;
-  auto CreateCommandPool() const -> CommandPool;
+  auto CreateCommandPool() const -> CommandPool override;
   auto CreateCommandBuffer(const CommandPool &command_pool) const
       -> CommandBuffer override;
+  auto CreateSemaphore() const -> Semaphore override;
+  auto CreateFence(bool signaled) const -> Fence override;
+
+  auto Submit(const SubmitInfo &info, const Fence &fence) -> void override;
+  auto Present(const PresentInfo &info) -> void override;
+  auto WaitIdle() -> void override;
 
   auto GetPhysicalDevices() const -> std::vector<VkPhysicalDevice>;
   auto GetPhysicalDevice() const -> VkPhysicalDevice {

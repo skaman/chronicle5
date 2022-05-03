@@ -7,13 +7,16 @@
 #include "common.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_command_pool.h"
+#include "vulkan_fence.h"
 #include "vulkan_frame_buffer.h"
 #include "vulkan_instance.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_render_pass.h"
+#include "vulkan_semaphore.h"
 #include "vulkan_shader.h"
 #include "vulkan_surface.h"
 #include "vulkan_swap_chain.h"
+#include "vulkan_utils.h"
 
 namespace chr::renderer::internal {
 
@@ -40,8 +43,10 @@ VulkanDevice::~VulkanDevice() {
 
 auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
   uint32_t count = 0;
-  if (vkEnumeratePhysicalDevices(instance_, &count, nullptr) != VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan physical devices");
+  if (auto result = vkEnumeratePhysicalDevices(instance_, &count, nullptr);
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan physical devices");
   }
 
   if (count == 0) {
@@ -49,9 +54,11 @@ auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
   }
 
   std::vector<VkPhysicalDevice> devices(count);
-  if (vkEnumeratePhysicalDevices(instance_, &count, devices.data()) !=
-      VK_SUCCESS) {
-    throw RendererException("Failed to enumerate Vulkan physical devices");
+  if (auto result =
+          vkEnumeratePhysicalDevices(instance_, &count, devices.data());
+      result != VK_SUCCESS) {
+    throw VulkanException(result,
+                          "Failed to enumerate Vulkan physical devices");
   }
 
   return devices;
@@ -60,6 +67,90 @@ auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
 auto VulkanDevice::CreateShader(const std::vector<uint8_t> &data) const
     -> Shader {
   return std::make_shared<VulkanShader>(*this, data);
+}
+
+auto VulkanDevice::Submit(const SubmitInfo &info, const Fence &fence) -> void {
+  std::vector<VkSemaphore> wait_semaphores{};
+  std::vector<VkPipelineStageFlags> wait_stages{};
+
+  wait_semaphores.reserve(info.wait_semaphores.size());
+  wait_stages.reserve(info.wait_semaphores.size());
+
+  for (auto &semaphore : info.wait_semaphores) {
+    wait_semaphores.push_back(
+        static_cast<VulkanSemaphore *>(semaphore.get())->GetNativeSemaphore());
+    wait_stages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+  }
+
+  std::vector<VkCommandBuffer> command_buffers{};
+  command_buffers.reserve(info.command_buffers.size());
+  for (auto &command_buffer : info.command_buffers) {
+    command_buffers.push_back(
+        static_cast<VulkanCommandBuffer *>(command_buffer.get())
+            ->GetNativeCommandBuffer());
+  }
+
+  std::vector<VkSemaphore> signal_semaphores{};
+  signal_semaphores.reserve(info.signal_semaphores.size());
+  for (auto &semaphore : info.signal_semaphores) {
+    signal_semaphores.push_back(
+        static_cast<VulkanSemaphore *>(semaphore.get())->GetNativeSemaphore());
+  }
+
+  VkFence vulkan_fence =
+      fence.get() != nullptr
+          ? static_cast<VulkanFence *>(fence.get())->GetNativeFence()
+          : VK_NULL_HANDLE;
+
+  VkSubmitInfo submit_info{};
+  submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+  submit_info.waitSemaphoreCount =
+      static_cast<uint32_t>(wait_semaphores.size());
+  submit_info.pWaitSemaphores = wait_semaphores.data();
+  submit_info.pWaitDstStageMask = wait_stages.data();
+  submit_info.commandBufferCount =
+      static_cast<uint32_t>(command_buffers.size());
+  submit_info.pCommandBuffers = command_buffers.data();
+  submit_info.signalSemaphoreCount =
+      static_cast<uint32_t>(signal_semaphores.size());
+  submit_info.pSignalSemaphores = signal_semaphores.data();
+
+  if (auto result =
+          vkQueueSubmit(graphics_queue_, 1, &submit_info, vulkan_fence);
+      result != VK_SUCCESS) {
+    throw VulkanException(result, "Failed to submit draw command buffer");
+  }
+}
+
+auto VulkanDevice::Present(const PresentInfo &info) -> void {
+  std::vector<VkSemaphore> wait_semaphores{};
+  wait_semaphores.reserve(info.wait_semaphores.size());
+  for (auto &semaphore : info.wait_semaphores) {
+    wait_semaphores.push_back(
+        static_cast<VulkanSemaphore *>(semaphore.get())->GetNativeSemaphore());
+  }
+
+  std::vector<VkSwapchainKHR> swap_chains{};
+  swap_chains.reserve(info.swap_chains.size());
+  for (auto &swapchain : info.swap_chains) {
+    swap_chains.push_back(
+        static_cast<VulkanSwapChain *>(swapchain.get())->GetNativeSwapChain());
+  }
+
+  VkPresentInfoKHR present_info{};
+  present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  present_info.waitSemaphoreCount =
+      static_cast<uint32_t>(wait_semaphores.size());
+  present_info.pWaitSemaphores = wait_semaphores.data();
+  present_info.swapchainCount = static_cast<uint32_t>(swap_chains.size());
+  present_info.pSwapchains = swap_chains.data();
+  present_info.pImageIndices = &info.image_index;
+  present_info.pResults = nullptr;  // Optional
+  vkQueuePresentKHR(present_queue_, &present_info);
+  // if (vkQueuePresentKHR(present_queue_, &present_info) != VK_SUCCESS) {
+  //   throw RendererException("Failed to submit presentation");
+  // }
 }
 
 auto VulkanDevice::CreateSwapChain(const Surface &surface,
@@ -97,6 +188,16 @@ auto VulkanDevice::CreateCommandBuffer(const CommandPool &command_pool) const
       *this, *static_cast<VulkanCommandPool *>(command_pool.get()));
 }
 
+auto VulkanDevice::CreateSemaphore() const -> Semaphore {
+  return std::make_shared<VulkanSemaphore>(*this);
+}
+
+auto VulkanDevice::CreateFence(bool signaled) const -> Fence {
+  return std::make_shared<VulkanFence>(*this, signaled);
+}
+
+auto VulkanDevice::WaitIdle() -> void { vkDeviceWaitIdle(device_); }
+
 auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const
     -> std::vector<VkQueueFamilyProperties> {
   uint32_t count = 0;
@@ -115,10 +216,11 @@ auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const
 auto VulkanDevice::GetExtensions(VkPhysicalDevice device) const
     -> std::vector<VkExtensionProperties> {
   uint32_t count;
-  if (vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr) !=
-      VK_SUCCESS) {
-    throw RendererException(
-        "Failed to enumerate Vulkan device extension properties");
+  if (auto result = vkEnumerateDeviceExtensionProperties(device, nullptr,
+                                                         &count, nullptr);
+      result != VK_SUCCESS) {
+    throw VulkanException(
+        result, "Failed to enumerate Vulkan device extension properties");
   }
 
   if (count == 0) {
@@ -126,10 +228,11 @@ auto VulkanDevice::GetExtensions(VkPhysicalDevice device) const
   }
 
   std::vector<VkExtensionProperties> extensions(count);
-  if (vkEnumerateDeviceExtensionProperties(device, nullptr, &count,
-                                           extensions.data()) != VK_SUCCESS) {
-    throw RendererException(
-        "Failed to enumerate Vulkan device extension properties");
+  if (auto result = vkEnumerateDeviceExtensionProperties(
+          device, nullptr, &count, extensions.data());
+      result != VK_SUCCESS) {
+    throw VulkanException(
+        result, "Failed to enumerate Vulkan device extension properties");
   }
 
   return extensions;
@@ -208,7 +311,8 @@ auto VulkanDevice::PickPhysicalDevice() -> void {
   if (!candidates.empty() && candidates.rbegin()->first > 0) {
     physical_device_ = candidates.rbegin()->second;
   } else {
-    throw RendererException("Failed to find a suitable GPU");
+    throw RendererException(Error::kInitializationFailed,
+                            "Failed to find a suitable GPU");
   }
 }
 
@@ -243,9 +347,11 @@ auto VulkanDevice::CreateLogicalDevice() -> void {
   create_info.enabledLayerCount = 0;
   create_info.ppEnabledLayerNames = nullptr;
 
-  if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) !=
-      VK_SUCCESS) {
-    throw RendererException("Failed to create logical device");
+  if (auto result =
+          vkCreateDevice(physical_device_, &create_info, nullptr, &device_);
+      result != VK_SUCCESS) {
+    device_ = VK_NULL_HANDLE;
+    throw VulkanException(result, "Failed to create logical device");
   }
 
   vkGetDeviceQueue(device_, indices.graphics_family.value(), 0,

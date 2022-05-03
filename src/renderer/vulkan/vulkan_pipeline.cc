@@ -129,10 +129,11 @@ VulkanPipeline::VulkanPipeline(const VulkanDevice &device,
   pipeline_layout_info.pushConstantRangeCount = 0;     // Optional
   pipeline_layout_info.pPushConstantRanges = nullptr;  // Optional
 
-  if (vkCreatePipelineLayout(device_, &pipeline_layout_info, nullptr,
-                             &pipeline_layout_) != VK_SUCCESS) {
+  if (auto result = vkCreatePipelineLayout(device_, &pipeline_layout_info,
+                                           nullptr, &pipeline_layout_);
+      result != VK_SUCCESS) {
     pipeline_layout_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create pipeline layout");
+    throw VulkanException(result, "Failed to create pipeline layout");
   }
 
   // Pipeline
@@ -154,12 +155,13 @@ VulkanPipeline::VulkanPipeline(const VulkanDevice &device,
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;  // Optional
   pipeline_info.basePipelineIndex = -1;               // Optional
 
-  if (vkCreateGraphicsPipelines(device_, VK_NULL_HANDLE, 1, &pipeline_info,
-                                nullptr, &pipeline_) != VK_SUCCESS) {
+  if (auto result = vkCreateGraphicsPipelines(
+          device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_);
+      result != VK_SUCCESS) {
     vkDestroyPipelineLayout(device_, pipeline_layout_, nullptr);
     pipeline_layout_ = VK_NULL_HANDLE;
-    device_ = VK_NULL_HANDLE;
-    throw RendererException("Failed to create graphics pipeline");
+    pipeline_ = VK_NULL_HANDLE;
+    throw VulkanException(result, "Failed to create graphics pipeline");
   }
 }
 
