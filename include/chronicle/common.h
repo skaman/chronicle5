@@ -7,6 +7,7 @@
 
 #include "../../src/common/debug.h"
 #include "../../src/common/log.h"
+#include "../../src/common/trace.h"
 #include "../../src/common/utils.h"
 
 #endif  // CHR_COMMON_H_

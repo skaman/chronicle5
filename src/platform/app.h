@@ -5,7 +5,7 @@
 #ifndef CHR_PLATFORM_APP_H_
 #define CHR_PLATFORM_APP_H_
 
-#include <entt/entt.hpp>
+#include <chronicle/common.h>
 
 #include "platform.h"
 

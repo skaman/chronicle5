@@ -16,6 +16,8 @@ VulkanPipeline::VulkanPipeline(const VulkanDevice &device,
                                const VulkanRenderPass &render_pass,
                                const PipelineCreateInfo &info)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   // Shader stage creation
   std::vector<VkPipelineShaderStageCreateInfo> shader_stages;
   shader_stages.reserve(info.shader_set.size());
@@ -166,6 +168,8 @@ VulkanPipeline::VulkanPipeline(const VulkanDevice &device,
 }
 
 VulkanPipeline::~VulkanPipeline() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (pipeline_ != VK_NULL_HANDLE) {
     vkDestroyPipeline(device_, pipeline_, nullptr);
   }

@@ -17,6 +17,8 @@ namespace chr::renderer::internal {
 VulkanCommandBuffer::VulkanCommandBuffer(const VulkanDevice &device,
                                          const VulkanCommandPool &command_pool)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.commandPool = command_pool.GetNativeCommandPool();
@@ -32,6 +34,8 @@ VulkanCommandBuffer::VulkanCommandBuffer(const VulkanDevice &device,
 }
 
 auto VulkanCommandBuffer::Begin() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkCommandBufferBeginInfo begin_info{};
   begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   begin_info.flags = 0;                   // Optional
@@ -44,6 +48,8 @@ auto VulkanCommandBuffer::Begin() -> void {
 }
 
 auto VulkanCommandBuffer::End() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (auto result = vkEndCommandBuffer(command_buffer_); result != VK_SUCCESS) {
     throw VulkanException(result, "Failed to record command buffer");
   }
@@ -53,6 +59,8 @@ auto VulkanCommandBuffer::BeginRenderPass(const RenderPass &render_pass,
                                           const FrameBuffer &frame_buffer,
                                           const BeginRenderPassInfo &info)
     -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass =
@@ -79,20 +87,28 @@ auto VulkanCommandBuffer::BeginRenderPass(const RenderPass &render_pass,
 }
 
 auto VulkanCommandBuffer::EndRenderPass() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   vkCmdEndRenderPass(command_buffer_);
 }
 
 auto VulkanCommandBuffer::BindPipeline(const Pipeline &pipeline) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   vkCmdBindPipeline(
       command_buffer_, VK_PIPELINE_BIND_POINT_GRAPHICS,
       static_cast<VulkanPipeline *>(pipeline.get())->GetNativePipeline());
 }
 
 auto VulkanCommandBuffer::Draw(const DrawInfo &info) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   vkCmdDraw(command_buffer_, info.vertex_count, 1, info.first_vertex, 0);
 }
 
 auto VulkanCommandBuffer::Reset() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   vkResetCommandBuffer(command_buffer_, 0);
 }
 

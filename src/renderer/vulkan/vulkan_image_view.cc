@@ -13,6 +13,8 @@ namespace chr::renderer::internal {
 VulkanImageView::VulkanImageView(const VulkanDevice &device,
                                  const VkFormat format, const VkImage image)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkImageViewCreateInfo create_info{};
   create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   create_info.image = image;
@@ -37,6 +39,8 @@ VulkanImageView::VulkanImageView(const VulkanDevice &device,
 }
 
 VulkanImageView::~VulkanImageView() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (image_view_ != VK_NULL_HANDLE) {
     vkDestroyImageView(device_, image_view_, nullptr);
   }

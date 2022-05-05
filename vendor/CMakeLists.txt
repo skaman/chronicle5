@@ -40,3 +40,6 @@ set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
 set(SHADERC_SKIP_EXAMPLES ON CACHE BOOL "" FORCE)
 set(SHADERC_ENABLE_SHARED_CRT ON CACHE BOOL "" FORCE)
 add_subdirectory(shaderc EXCLUDE_FROM_ALL)
+
+# Add tracy
+add_subdirectory(tracy)

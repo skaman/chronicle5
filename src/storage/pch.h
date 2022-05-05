@@ -7,6 +7,4 @@
 
 #include <chronicle/common.h>
 
-#include <entt/entt.hpp>
-
 #endif  // CHR_STORAGE_PCH_H_

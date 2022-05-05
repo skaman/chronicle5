@@ -7,6 +7,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <Tracy.hpp>
 #include <iostream>
 
 #ifdef __cpp_lib_source_location
@@ -69,6 +70,27 @@ constexpr auto LevelToSpdlog(Level level) noexcept
   }
 }
 
+constexpr auto LevelToTracyColor(Level level) noexcept
+    -> uint32_t {
+  switch (level) {
+    case chr::log::Level::kTrace:
+      return tracy::Color::Gray;
+    case chr::log::Level::kDebug:
+      return tracy::Color::Gray;
+    case chr::log::Level::kInfo:
+      return tracy::Color::White;
+    case chr::log::Level::kWarn:
+      return tracy::Color::Yellow;
+    case chr::log::Level::kErr:
+      return tracy::Color::Red;
+    case chr::log::Level::kCritical:
+      return tracy::Color::Red;
+    default:
+      return tracy::Color::White;
+      break;
+  }
+}
+
 template <Level level, typename... Args>
 constexpr auto Log(const std::source_location &location,
                    spdlog::format_string_t<Args...> format, Args &&...args)
@@ -79,6 +101,10 @@ constexpr auto Log(const std::source_location &location,
                            static_cast<int>(location.line()),
                            location.function_name()},
         LevelToSpdlog(level), format, std::forward<Args>(args)...);
+#if defined(TRACY_ENABLE)
+    std::string message = fmt::format(format, std::forward<Args>(args)...);
+    TracyMessageC(message.c_str(), message.size(), LevelToTracyColor(level));
+#endif
   }
 }
 

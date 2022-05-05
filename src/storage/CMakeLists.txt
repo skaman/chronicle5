@@ -24,6 +24,5 @@ target_include_directories(chronicle-storage
 
 target_link_libraries(chronicle-storage
     PUBLIC
-        EnTT::EnTT
         chronicle::common
 )

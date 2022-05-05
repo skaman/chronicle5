@@ -24,6 +24,8 @@ VulkanDevice::VulkanDevice(const VulkanInstance &instance,
                            const VulkanSurface &surface)
     : instance_{instance.GetNativeInstance()},
       surface_{surface.GetNativeSurface()} {
+  CHR_ZONE_SCOPED_VULKAN();
+
   device_extensions_.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 #if defined(CHR_PLATFORM_MACOS)
@@ -36,12 +38,16 @@ VulkanDevice::VulkanDevice(const VulkanInstance &instance,
 }
 
 VulkanDevice::~VulkanDevice() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (device_ != VK_NULL_HANDLE) {
     vkDestroyDevice(device_, nullptr);
   }
 }
 
 auto VulkanDevice::GetPhysicalDevices() const -> std::vector<VkPhysicalDevice> {
+  CHR_ZONE_SCOPED_VULKAN();
+
   uint32_t count = 0;
   if (auto result = vkEnumeratePhysicalDevices(instance_, &count, nullptr);
       result != VK_SUCCESS) {
@@ -70,6 +76,8 @@ auto VulkanDevice::CreateShader(const std::vector<uint8_t> &data) const
 }
 
 auto VulkanDevice::Submit(const SubmitInfo &info, const Fence &fence) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   std::vector<VkSemaphore> wait_semaphores{};
   std::vector<VkPipelineStageFlags> wait_stages{};
 
@@ -124,6 +132,8 @@ auto VulkanDevice::Submit(const SubmitInfo &info, const Fence &fence) -> void {
 }
 
 auto VulkanDevice::Present(const PresentInfo &info) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   std::vector<VkSemaphore> wait_semaphores{};
   wait_semaphores.reserve(info.wait_semaphores.size());
   for (auto &semaphore : info.wait_semaphores) {
@@ -196,10 +206,16 @@ auto VulkanDevice::CreateFence(bool signaled) const -> Fence {
   return std::make_shared<VulkanFence>(*this, signaled);
 }
 
-auto VulkanDevice::WaitIdle() -> void { vkDeviceWaitIdle(device_); }
+auto VulkanDevice::WaitIdle() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
+  vkDeviceWaitIdle(device_);
+}
 
 auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const
     -> std::vector<VkQueueFamilyProperties> {
+  CHR_ZONE_SCOPED_VULKAN();
+
   uint32_t count = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
 
@@ -215,6 +231,8 @@ auto VulkanDevice::GetQueueFamilies(VkPhysicalDevice device) const
 
 auto VulkanDevice::GetExtensions(VkPhysicalDevice device) const
     -> std::vector<VkExtensionProperties> {
+  CHR_ZONE_SCOPED_VULKAN();
+
   uint32_t count;
   if (auto result = vkEnumerateDeviceExtensionProperties(device, nullptr,
                                                          &count, nullptr);
@@ -240,6 +258,8 @@ auto VulkanDevice::GetExtensions(VkPhysicalDevice device) const
 
 auto VulkanDevice::FindQueueFamilies(VkPhysicalDevice device) const
     -> QueueFamilyIndices {
+  CHR_ZONE_SCOPED_VULKAN();
+
   QueueFamilyIndices indices;
 
   auto families = GetQueueFamilies(device);
@@ -268,6 +288,8 @@ auto VulkanDevice::FindQueueFamilies(VkPhysicalDevice device) const
 
 auto VulkanDevice::QuerySwapChainSupport(VkPhysicalDevice device) const
     -> SwapChainSupportDetails {
+  CHR_ZONE_SCOPED_VULKAN();
+
   SwapChainSupportDetails details;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_,
                                             &details.capabilities);
@@ -295,6 +317,8 @@ auto VulkanDevice::QuerySwapChainSupport(VkPhysicalDevice device) const
 }
 
 auto VulkanDevice::PickPhysicalDevice() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   auto devices = GetPhysicalDevices();
 
   // Use an ordered map to automatically sort candidates by increasing score
@@ -317,6 +341,8 @@ auto VulkanDevice::PickPhysicalDevice() -> void {
 }
 
 auto VulkanDevice::CreateLogicalDevice() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   QueueFamilyIndices indices = FindQueueFamilies(physical_device_);
 
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
@@ -360,6 +386,8 @@ auto VulkanDevice::CreateLogicalDevice() -> void {
 }
 
 auto VulkanDevice::RateDeviceSuitability(VkPhysicalDevice device) const -> int {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkPhysicalDeviceProperties properties{};
   vkGetPhysicalDeviceProperties(device, &properties);
 
@@ -378,6 +406,8 @@ auto VulkanDevice::RateDeviceSuitability(VkPhysicalDevice device) const -> int {
 
 auto VulkanDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device)
     -> bool {
+  CHR_ZONE_SCOPED_VULKAN();
+
   auto available_extensions = GetExtensions(device);
 
   std::set<std::string, std::less<>> required_extensions(
@@ -391,6 +421,8 @@ auto VulkanDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device)
 }
 
 auto VulkanDevice::IsDeviceSuitable(VkPhysicalDevice device) -> bool {
+  CHR_ZONE_SCOPED_VULKAN();
+
   auto indices = FindQueueFamilies(device);
 
   bool extensions_supported = CheckDeviceExtensionSupport(device);

@@ -2,6 +2,7 @@ add_library(chronicle-common
     "debug.h"
     "log.cc"
     "log.h"
+    "trace.h"
     "utils.h"
 )
 
@@ -17,6 +18,8 @@ target_include_directories(chronicle-common
 target_link_libraries(chronicle-common
     PUBLIC
         spdlog
+        EnTT::EnTT
+        Tracy::TracyClient
 )
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -30,6 +33,13 @@ else()
         PUBLIC
             CHR_MINIMUM_LOG_LEVEL=2
             CHR_ENABLE_ASSERTS=0
+    )
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(chronicle-common
+        PUBLIC
+            -Wno-c++17-extensions
     )
 endif()
 

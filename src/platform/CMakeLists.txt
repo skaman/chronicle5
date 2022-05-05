@@ -24,7 +24,6 @@ target_include_directories(chronicle-platform
 target_link_libraries(chronicle-platform
     PUBLIC
         glfw
-        EnTT::EnTT
         chronicle::common
         chronicle::renderer
 )

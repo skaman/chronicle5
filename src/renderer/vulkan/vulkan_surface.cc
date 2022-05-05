@@ -20,6 +20,8 @@ namespace chr::renderer::internal {
 VulkanSurface::VulkanSurface(const VulkanInstance &instance,
                              const SurfaceCreateInfo &info)
     : instance_(instance.GetNativeInstance()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (info.custom_init) {
     surface_ = static_cast<VkSurfaceKHR>(info.custom_init(instance_));
     if (surface_ == VK_NULL_HANDLE) {
@@ -56,6 +58,8 @@ VulkanSurface::VulkanSurface(const VulkanInstance &instance,
 }
 
 VulkanSurface::~VulkanSurface() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (surface_ != VK_NULL_HANDLE) {
     vkDestroySurfaceKHR(instance_, surface_, nullptr);
   }

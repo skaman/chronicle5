@@ -61,6 +61,8 @@ static void DestroyDebugUtilsMessengerEXT(
 }
 
 VulkanInstance::VulkanInstance(const InstanceCreateInfo &info) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   log::Debug("Vulkan init");
 
   // prepare layers and extesions
@@ -144,6 +146,8 @@ VulkanInstance::VulkanInstance(const InstanceCreateInfo &info) {
 }
 
 VulkanInstance::~VulkanInstance() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (instance_ != VK_NULL_HANDLE) {
     if (debug_messenger_ != VK_NULL_HANDLE) {
       DestroyDebugUtilsMessengerEXT(instance_, debug_messenger_, nullptr);
@@ -162,6 +166,8 @@ auto VulkanInstance::CreateDevice(const Surface &surface) -> Device {
 }
 
 auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
+  CHR_ZONE_SCOPED_VULKAN();
+
   uint32_t count;
   if (auto result = vkEnumerateInstanceLayerProperties(&count, nullptr);
       result != VK_SUCCESS) {
@@ -185,6 +191,8 @@ auto VulkanInstance::GetLayers() const -> std::vector<VkLayerProperties> {
 
 auto VulkanInstance::GetExtensions() const
     -> std::vector<VkExtensionProperties> {
+  CHR_ZONE_SCOPED_VULKAN();
+
   uint32_t count = 0;
   if (auto result =
           vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
@@ -209,6 +217,8 @@ auto VulkanInstance::GetExtensions() const
 }
 
 auto VulkanInstance::SetupDebugMessenger(DebugLevel level) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (level == DebugLevel::kNone) {
     return;
   }
@@ -243,6 +253,8 @@ auto VulkanInstance::SetupDebugMessenger(DebugLevel level) -> void {
 }
 
 auto VulkanInstance::ValidateLayers() const -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   log::Debug("Requested layers:");
   for (const auto &layer : required_layers_) {
     log::Debug("  - {}", layer);
@@ -272,6 +284,8 @@ auto VulkanInstance::ValidateLayers() const -> void {
 }
 
 auto VulkanInstance::ValidateExtensions() const -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   log::Debug("Requested extensions:");
   for (const auto &extension : required_extensions_) {
     log::Debug("  - {}", extension);

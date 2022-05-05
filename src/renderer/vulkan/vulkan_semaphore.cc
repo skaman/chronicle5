@@ -12,6 +12,8 @@ namespace chr::renderer::internal {
 
 VulkanSemaphore::VulkanSemaphore(const VulkanDevice &device)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkSemaphoreCreateInfo semaphore_info{};
   semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -24,6 +26,8 @@ VulkanSemaphore::VulkanSemaphore(const VulkanDevice &device)
 }
 
 VulkanSemaphore::~VulkanSemaphore() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (semaphore_ != VK_NULL_HANDLE) {
     vkDestroySemaphore(device_, semaphore_, nullptr);
   }

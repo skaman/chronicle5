@@ -7,6 +7,8 @@
 CHR_INIT { chr::platform::RegisterApp<ExampleApp>(); }
 
 auto ExampleApp::Init() -> void {
+  CHR_ZONE_SCOPED();
+
   chr::log::Info("init");
   auto& platform = entt::locator<chr::platform::Platform>::value();
 
@@ -99,6 +101,8 @@ auto ExampleApp::Init() -> void {
 }
 
 auto ExampleApp::Destroy() -> void {
+  CHR_ZONE_SCOPED();
+
   chr::log::Info("destroy");
 
   auto& platform = entt::locator<chr::platform::Platform>::value();
@@ -110,6 +114,8 @@ auto ExampleApp::Destroy() -> void {
 }
 
 auto GetFenceStatus(const chr::renderer::Fence& fence) -> std::string {
+  CHR_ZONE_SCOPED();
+
   switch (fence->GetStatus()) {
     case chr::renderer::FenceStatus::kSignaled:
       return "signaled";
@@ -127,6 +133,8 @@ auto GetFenceStatus(const chr::renderer::Fence& fence) -> std::string {
 }
 
 auto ExampleApp::Update() -> void {
+  CHR_ZONE_SCOPED();
+
   const auto& platform = entt::locator<chr::platform::Platform>::value();
 
   platform.Update();
@@ -158,9 +166,13 @@ auto ExampleApp::Update() -> void {
                    .image_index = image_index});
 
   current_frame_ = (current_frame_ + 1) % kMaxFramesInFlight;
+
+  FrameMark
 }
 
 auto ExampleApp::OnKeyEvent(const chr::platform::KeyEvent& key_event) const
     -> void {
+  CHR_ZONE_SCOPED();
+
   chr::log::Info("key: {}", (int)key_event.key);
 }

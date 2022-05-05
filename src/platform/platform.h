@@ -5,9 +5,8 @@
 #ifndef CHR_PLATFORM_PLATFORM_H_
 #define CHR_PLATFORM_PLATFORM_H_
 
+#include <chronicle/common.h>
 #include <chronicle/renderer.h>
-
-#include <entt/entt.hpp>
 
 #include "events.h"
 

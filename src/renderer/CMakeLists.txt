@@ -71,7 +71,6 @@ target_precompile_headers(chronicle-renderer
 
 target_link_libraries(chronicle-renderer
     PUBLIC
-        EnTT::EnTT
         glm::glm
         Vulkan::Headers
         Vulkan::Vulkan

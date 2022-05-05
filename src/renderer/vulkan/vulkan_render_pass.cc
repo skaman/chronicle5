@@ -13,6 +13,8 @@ namespace chr::renderer::internal {
 VulkanRenderPass::VulkanRenderPass(const VulkanDevice& device,
                                    const RenderPassCreateInfo& info)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkAttachmentDescription color_attachment{};
   color_attachment.format = GetVulkanFormat(info.format);
   color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -58,6 +60,8 @@ VulkanRenderPass::VulkanRenderPass(const VulkanDevice& device,
 }
 
 VulkanRenderPass::~VulkanRenderPass() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (render_pass_ != VK_NULL_HANDLE) {
     vkDestroyRenderPass(device_, render_pass_, nullptr);
   }

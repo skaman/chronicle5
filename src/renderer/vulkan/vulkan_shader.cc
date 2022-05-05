@@ -13,6 +13,8 @@ namespace chr::renderer::internal {
 VulkanShader::VulkanShader(const VulkanDevice &device,
                            const std::vector<uint8_t> &data)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = data.size();
@@ -27,6 +29,8 @@ VulkanShader::VulkanShader(const VulkanDevice &device,
 }
 
 VulkanShader::~VulkanShader() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (shader_ != VK_NULL_HANDLE) {
     vkDestroyShaderModule(device_, shader_, nullptr);
   }

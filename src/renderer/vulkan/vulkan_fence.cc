@@ -12,6 +12,8 @@ namespace chr::renderer::internal {
 
 VulkanFence::VulkanFence(const VulkanDevice &device, bool signaled)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkFenceCreateInfo fence_info{};
   fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   fence_info.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
@@ -24,18 +26,28 @@ VulkanFence::VulkanFence(const VulkanDevice &device, bool signaled)
 }
 
 VulkanFence::~VulkanFence() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (fence_ != VK_NULL_HANDLE) {
     vkDestroyFence(device_, fence_, nullptr);
   }
 }
 
 auto VulkanFence::Wait() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   vkWaitForFences(device_, 1, &fence_, VK_TRUE, UINT64_MAX);
 }
 
-auto VulkanFence::Reset() -> void { vkResetFences(device_, 1, &fence_); }
+auto VulkanFence::Reset() -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
+  vkResetFences(device_, 1, &fence_);
+}
 
 auto VulkanFence::GetStatus() -> FenceStatus {
+  CHR_ZONE_SCOPED_VULKAN();
+
   switch (vkGetFenceStatus(device_, fence_)) {
     case VK_SUCCESS:
       return FenceStatus::kSignaled;

@@ -6,6 +6,7 @@
 #define CHR_COMMON_UTILS_H_
 
 #include <algorithm>
+#include <entt/entt.hpp>
 
 namespace chr::utils {
 

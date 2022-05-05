@@ -24,7 +24,7 @@ struct AssertFailure {
 //! @brief Assert that a condition is true.
 //! @param condition Condition to assert.
 //! @param message Message that describe the assert.
-constexpr auto Assert(bool condition, const std::string &message) -> void {
+constexpr auto Assert(bool condition, const std::string& message) -> void {
   if constexpr (CHR_ENABLE_ASSERTS) {
     if (!condition) {
       log::Critical("{}", message);

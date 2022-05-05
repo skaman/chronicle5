@@ -12,6 +12,8 @@ namespace chr::renderer::internal {
 
 VulkanCommandPool::VulkanCommandPool(const VulkanDevice &device)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   auto queueFamilyIndices =
       device.FindQueueFamilies(device.GetPhysicalDevice());
 
@@ -29,6 +31,8 @@ VulkanCommandPool::VulkanCommandPool(const VulkanDevice &device)
 }
 
 VulkanCommandPool::~VulkanCommandPool() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (command_pool_ != VK_NULL_HANDLE) {
     vkDestroyCommandPool(device_, command_pool_, nullptr);
   }

@@ -18,6 +18,8 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
                                  const VulkanSurface &surface,
                                  const SwapChainCreateInfo &info)
     : device_{device.GetNativeDevice()}, surface_{surface.GetNativeSurface()} {
+  CHR_ZONE_SCOPED_VULKAN();
+
   auto swap_chain_support =
       device.QuerySwapChainSupport(device.GetPhysicalDevice());
 
@@ -84,6 +86,8 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice &device,
 }
 
 VulkanSwapChain::~VulkanSwapChain() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (swapchain_ != VK_NULL_HANDLE) {
     vkDestroySwapchainKHR(device_, swapchain_, nullptr);
   }
@@ -92,6 +96,8 @@ VulkanSwapChain::~VulkanSwapChain() {
 auto VulkanSwapChain::ChooseSwapSurfaceFormat(
     const std::vector<VkSurfaceFormatKHR> &available_formats)
     -> VkSurfaceFormatKHR {
+  CHR_ZONE_SCOPED_VULKAN();
+
   debug::Assert(!available_formats.empty(),
                 "Available formats list can't be empty");
 
@@ -108,18 +114,25 @@ auto VulkanSwapChain::ChooseSwapSurfaceFormat(
 auto VulkanSwapChain::ChooseSwapPresentMode(
     const std::vector<VkPresentModeKHR> &available_present_modes)
     -> VkPresentModeKHR {
-  for (const auto &available_present_mode : available_present_modes) {
-    if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
-      return available_present_mode;
-    }
-  }
+  CHR_ZONE_SCOPED_VULKAN();
 
-  return VK_PRESENT_MODE_FIFO_KHR;
+  // TODO: restore this
+  //for (const auto &available_present_mode : available_present_modes) {
+  //  if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
+  //    return available_present_mode;
+  //  }
+  //}
+
+  //return VK_PRESENT_MODE_FIFO_KHR;
+
+  return VK_PRESENT_MODE_IMMEDIATE_KHR;
 }
 
 auto VulkanSwapChain::ChooseSwapExtent(
     const VkSurfaceCapabilitiesKHR &capabilities, uint32_t frame_buffer_width,
     uint32_t frame_buffer_height) -> VkExtent2D {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (capabilities.currentExtent.width !=
       std::numeric_limits<uint32_t>::max()) {
     return capabilities.currentExtent;
@@ -138,6 +151,8 @@ auto VulkanSwapChain::ChooseSwapExtent(
 }
 
 auto VulkanSwapChain::CreateSwapChainImages(uint32_t image_count) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (auto result =
           vkGetSwapchainImagesKHR(device_, swapchain_, &image_count, nullptr);
       result != VK_SUCCESS) {
@@ -156,6 +171,8 @@ auto VulkanSwapChain::CreateSwapChainImages(uint32_t image_count) -> void {
 auto VulkanSwapChain::CreateImageViews(const VulkanDevice &device,
                                        uint32_t image_count,
                                        VkFormat image_format) -> void {
+  CHR_ZONE_SCOPED_VULKAN();
+
   image_views_.reserve(image_count);
   for (auto i = 0; i < image_count; i++) {
     try {
@@ -170,6 +187,8 @@ auto VulkanSwapChain::CreateImageViews(const VulkanDevice &device,
 
 auto VulkanSwapChain::AcquireNextImage(Semaphore semaphore, Fence fence)
     -> uint32_t {
+  CHR_ZONE_SCOPED_VULKAN();
+
   VkSemaphore vulkan_semaphore =
       semaphore.get() != nullptr
           ? static_cast<VulkanSemaphore *>(semaphore.get())

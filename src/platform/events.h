@@ -5,7 +5,7 @@
 #ifndef CHR_PLATFORM_EVENTS_H_
 #define CHR_PLATFORM_EVENTS_H_
 
-#include <entt/entt.hpp>
+#include <chronicle/common.h>
 
 namespace chr::platform {
 

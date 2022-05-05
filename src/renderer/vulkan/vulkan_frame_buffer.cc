@@ -16,6 +16,8 @@ VulkanFrameBuffer::VulkanFrameBuffer(const VulkanDevice &device,
                                      const VulkanRenderPass &render_pass,
                                      const FrameBufferCreateInfo &info)
     : device_(device.GetNativeDevice()) {
+  CHR_ZONE_SCOPED_VULKAN();
+
   std::vector<VkImageView> attachments{};
   attachments.reserve(info.attachments.size());
 
@@ -42,6 +44,8 @@ VulkanFrameBuffer::VulkanFrameBuffer(const VulkanDevice &device,
 }
 
 VulkanFrameBuffer::~VulkanFrameBuffer() {
+  CHR_ZONE_SCOPED_VULKAN();
+
   if (frame_buffer_ != VK_NULL_HANDLE) {
     vkDestroyFramebuffer(device_, frame_buffer_, nullptr);
   }
